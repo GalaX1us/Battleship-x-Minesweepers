@@ -357,12 +357,14 @@ def settings_menu():
             if event.type == pygame.QUIT:
                 running = False
                 quit()
-                
+        
             
         SCREEN.fill(GREY)
         
         #show title
-        draw_text( "Settings", WIDTH/5, 0, size=100, color=BLUE)
+        draw_text( "Settings", 150, 0, size=100, color=BLUE)
+        
+        draw_text( "Hint radius", 220, 130, size=50, color=BLUE)
         
         #show buttons
         buttons_draw(buttons)
