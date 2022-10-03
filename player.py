@@ -3,35 +3,30 @@ from mine import *
 from utils import *
 
 class Player():
-    def __init__(self,name):
+    def __init__(self,name,ship_sizes=[3,3,3],mine_nb=8):
         #player's name
         self.name = name
-        
         #max hp value
         self.max_hp = 3
         #player's hp value 
         self.hp = self.max_hp
-        
         #list of all the player's ships 
         self.ships = []
         #list of all index of the tiles occupied by the player's ships
         self.list_tiles_ships = []
-        
         #list of all the player's mines
         self.mines = []
         #list of all index of the tiles occupied by a player's mines
         self.list_tiles_mines = []
-        
         #list containing all the moves made by the player
         self.shot_fired = ['U' for i in range(100)]
-        
         #list of hint for each move made by the player
         self.hint_list = {}
         
         #automatic placement of all ships
-        self.place_ships()
+        self.place_ships(ship_sizes)
         #automatic placement of all mines
-        self.place_mines()
+        self.place_mines(nb=mine_nb)
         
     def place_ships(self, sizes=[3,3,3]):
         """Randomly places all the ships

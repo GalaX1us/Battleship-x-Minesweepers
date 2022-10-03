@@ -211,8 +211,9 @@ def main_loop(game:Game):
         Main loop of the game, display the game grid
     """    
     #game initialisation
+    game.start_game()
     running = True
-    played=False
+    played = False
     
     #buttons creation
     buttons = []

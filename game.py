@@ -1,5 +1,28 @@
 from player import Player
+import random
 from utils import *
+
+def generate_ship_sizes(nb):
+    """Generate the sizes of the ships with a certain repartition
+
+    Args:
+        nb (int): number of ship  to create
+
+    Returns:
+        list(int): list of ship sizes
+    """
+    sizes = []
+    for x in range(nb):
+        r = random.random()
+        if r<0.1:
+            sizes.append(2)
+        elif r<0.2:
+            sizes.append(5)
+        elif r<0.5:
+            sizes.append(4)
+        else:
+            sizes.append(3)
+    return sizes
 
 class Game():
     def __init__(self):
@@ -11,8 +34,8 @@ class Game():
         self.random_placement = True
         
         #init of both players
-        self.player1 = Player("P1")
-        self.player2 = Player("P2")
+        self.player1 = None
+        self.player2 = None
         self.current_player = self.player1
         self.current_opponent = self.player2
         
@@ -33,6 +56,15 @@ class Game():
         #Display none if 3
         self.hint_option = 0
         self.hint_radius = 2
+        
+    
+    
+    def start_game(self):
+        sizes = generate_ship_sizes(self.nb_ships)
+        self.player1 = Player("P1",sizes,self.nb_mines)
+        self.player2 = Player("P2",sizes,self.nb_mines)
+        self.current_player = self.player1
+        self.current_opponent = self.player2
     
     def get_ship_nb(self):
         return self.nb_ships
