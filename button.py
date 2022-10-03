@@ -3,7 +3,8 @@ import pygame
 from utils import *
 
 class Button:
-	def __init__(self,text,text_size,event,width,height,pos,screen,colorA=WHITE,colorB=BLUE,text_switch=[],event_args=()):
+	def __init__(self,text,text_size,event,width,height,pos,screen,colorA=WHITE,colorB=BLUE,
+              text_switch=[],event_args=(), font="assets/fonts/FredokaOne-Regular.ttf"):
 		"""Creation of a button
 
 		Args:
@@ -24,7 +25,7 @@ class Button:
 			event_args (tuple()): args given to event. Default to ()
 		"""
 		#Core attributes
-		self.font = pygame.font.Font("assets/fonts/FredokaOne-Regular.ttf", text_size)
+		self.font = pygame.font.Font(font, text_size)
 		self.screen=screen
 		self.pressed = False
 		self.elevation = 5

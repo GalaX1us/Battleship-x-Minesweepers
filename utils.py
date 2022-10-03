@@ -75,3 +75,8 @@ def get_position(x,y):
     if 0<=a<NB_TILE and 0<=b<NB_TILE:
         validity=True
     return a,b,validity
+
+def useless():
+    """useless func, used when a callable is needed but we don't want anything to be done
+    """
+    pass

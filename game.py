@@ -27,7 +27,18 @@ class Game():
         #Display both if 2
         #Display none if 3
         self.hint_option = 0
+        self.hint_radius = 2
+        
+    def get_hint_radius(self):
+        return self.hint_radius
     
+    def change_hint_radius(self,val):
+        self.hint_radius+=val
+        if self.hint_radius > 3:
+            self.hint_radius=3
+        elif self.hint_radius<0:
+            self.hint_radius=0
+        
     def game_over(self):
         """set the game to over
         """
@@ -113,11 +124,11 @@ class Game():
         x,y=get_coords(idx)
         nb_m = 0
         nb_s = 0
-        for a in range(-2,3):
-            for b in range((abs(a)-2),-(abs(a)-2)+1):
-                if get_index(x+a,y+b) in self.current_opponent.get_list_tiles_mines():
+        for a in range(-self.hint_radius,self.hint_radius+1):
+            for b in range((abs(a)-self.hint_radius),-(abs(a)-self.hint_radius)+1):
+                if 0<=x+a<NB_TILE and 0<=y+b<NB_TILE and get_index(x+a,y+b) in self.current_opponent.get_list_tiles_mines():
                     nb_m+=1
-                elif get_index(x+a,y+b) in self.current_opponent.get_list_tiles_ships() :
+                elif 0<=x+a<NB_TILE and 0<=y+b<NB_TILE and get_index(x+a,y+b) in self.current_opponent.get_list_tiles_ships() :
                     nb_s+=1
         self.current_player.add_hint(idx, (nb_s,nb_m))
 

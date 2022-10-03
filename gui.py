@@ -15,9 +15,12 @@ pygame.init()
 pygame.display.set_caption("Bataille Navale X Démineur")
 SCREEN = pygame.display.set_mode((WIDTH,HEIGHT))
 mainClock = pygame.time.Clock()
-font = pygame.font.SysFont('Comic Sans MS', 30)
 logo = pygame.transform.scale(pygame.image.load("assets/images/logo.png"), ((WIDTH/2,WIDTH/2)))
 
+def init_game():
+    game = Game()
+    main_menu(game)
+    
 def buttons_draw(button_list):
     """Display all the buttons in button_list
 
@@ -62,7 +65,7 @@ def draw_grid(x_offset=0,y_offset=INFO_MARGIN_HEIGHT):
         square = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
         pygame.draw.rect(SCREEN, WHITE, square, width=3)
         
-def draw_shot_fired(player,game, x_offset=0,y_offset=INFO_MARGIN_HEIGHT,search=True):
+def draw_shot_fired(player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEIGHT,search=True):
     """display all the moves that a specific player have done since the begining
 
     Args:
@@ -99,7 +102,7 @@ def draw_shot_fired(player,game, x_offset=0,y_offset=INFO_MARGIN_HEIGHT,search=T
                 pygame.draw.circle(SCREEN, MOVE_COLOR[symbol], (x+TILE_SIZE//2,y+TILE_SIZE//2), rad)
             
             #if the move was a miss, display the infos of the surrounding tiles (radius 2)
-            if symbol == 'M' and game.get_grid_choice() and game.get_hint_choice()<=2:
+            if symbol == 'M' and game.get_grid_choice() and game.get_hint_choice()<=2 and game.get_hint_radius():
                 
                 #display only ships hints
                 if game.get_hint_choice() == 0:
@@ -203,19 +206,23 @@ def draw_player_grid(game):
     #display the moves made by the opponent
     draw_shot_fired(game.get_current_opponent(),game,search=False)
     
-def main_loop():
+def main_loop(game:Game):
     """
         Main loop of the game, display the game grid
     """    
     #game initialisation
-    game = Game()
     running = True
     played=False
     
     #buttons creation
     buttons = []
-    buttons.append(Button("Search grid", 50,game.switch_grid,WIDTH/2,75,(WIDTH/4,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN, text_switch=["Your grid"],colorB=GREEN))
-    buttons.append(Button("Ship", 50,game.switch_hint,WIDTH/4,75,(0,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN, text_switch=["Mine","Both","None"],colorB=BLUE))
+    buttons.append(Button("Search grid", 50,game.switch_grid,WIDTH/2,75,(WIDTH/4,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN, 
+                          text_switch=["Your grid"],colorB=GREEN))
+    if not game.get_hint_radius():
+        buttons.append(Button("None", 50,useless,WIDTH/4,75,(0,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN,colorB=BLUE))
+    else:
+        buttons.append(Button("Ship", 50,game.switch_hint,WIDTH/4,75,(0,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN, 
+                          text_switch=["Mine","Both","None"],colorB=BLUE))
     buttons.append(Button("Quit", 50,quit,WIDTH/4,75,(3*WIDTH/4,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN,colorB=RED))
     
     #main loop
@@ -286,14 +293,14 @@ def main_loop():
             played=False
 
 
-def help_menu():
+def help_menu(game:Game):
     """
         loop and window displaying a visual aid to understand the color code of the game
     """
     
     #buttons creation
     buttons = []
-    buttons.append(Button('Main menu', 50,main_menu,525,80,(80,750),SCREEN))
+    buttons.append(Button('Main menu', 50,main_menu,525,80,(80,750),SCREEN,event_args=(game,)))
     
     #main loop of the function
     running = True
@@ -340,16 +347,18 @@ def help_menu():
         pygame.display.update()  
         mainClock.tick(FPS)
 
-def comming_soon():
-    print("Work in progress")
     
-def settings_menu():
+def settings_menu(game:Game):
     """
         loop and window that allow the user to tweaks the settings of the game
     """
     #creation of the buttons
     buttons = []
-    buttons.append(Button('Main menu', 50,main_menu,525,80,(80,750),SCREEN))
+    buttons.append(Button('Main menu', 50,main_menu,525,80,(80,750),SCREEN,event_args=(game,)))
+    buttons.append(Button('-', 100,game.change_hint_radius,100,100,(100,200),SCREEN,event_args=(-1,),
+                          font="assets/fonts/EricaOne-Regular.ttf"))
+    buttons.append(Button('+', 100,game.change_hint_radius,100,100,(500,200),SCREEN,event_args=(1,),
+                          font="assets/fonts/EricaOne-Regular.ttf"))
     #main loop of the gfunction
     running = True
     while running:
@@ -362,10 +371,10 @@ def settings_menu():
         SCREEN.fill(GREY)
         
         #show title
-        draw_text( "Settings", 150, 0, size=100, color=BLUE)
+        draw_text( "Settings", 170, 0, size=90, color=BLUE)
         
-        draw_text( "Hint radius", 220, 130, size=50, color=BLUE)
-        
+        draw_text( "Hint radius", 215, 130, size=50, color=BLUE)
+        draw_text( "{}".format(game.get_hint_radius()), 320, 190, size=90, color=BLUE)
         #show buttons
         buttons_draw(buttons)
         #update screen
@@ -373,16 +382,19 @@ def settings_menu():
         mainClock.tick(FPS)
 
 
-def main_menu():
+def comming_soon():
+    print("Work in progress")
+
+def main_menu(game:Game):
     """
        loop and window that manage the start menu 
     """
     #creation of the buttons
     buttons = []
-    buttons.append(Button('Human Vs Human', 50,main_loop,530,80,(80,450),SCREEN)) 
+    buttons.append(Button('Human Vs Human', 50,main_loop,530,80,(80,450),SCREEN,event_args=(game,))) 
     buttons.append(Button('Human Vs AI', 50,comming_soon,530,80,(80,550),SCREEN,text_switch=["Work in progress"])) 
-    buttons.append(Button('Settings', 50,settings_menu,530,80,(80,650),SCREEN)) 
-    buttons.append(Button('Help', 50,help_menu,260,80,(80,750),SCREEN)) 
+    buttons.append(Button('Settings', 50,settings_menu,530,80,(80,650),SCREEN,event_args=(game,))) 
+    buttons.append(Button('Help', 50,help_menu,260,80,(80,750),SCREEN,event_args=(game,))) 
     buttons.append(Button('Exit', 50,exit,260,80,(350,750),SCREEN)) 
     
     #main loop of the gfunction
@@ -407,4 +419,4 @@ def main_menu():
         mainClock.tick(FPS)
 
 if __name__ == "__main__":
-    main_menu()
+    init_game()
