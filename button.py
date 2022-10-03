@@ -1,8 +1,9 @@
+from timeit import timeit
 import pygame
 from utils import *
 
 class Button:
-	def __init__(self,text,text_size,event,width,height,pos,screen,colorA=WHITE,colorB=BLUE,text_switch=[]):
+	def __init__(self,text,text_size,event,width,height,pos,screen,colorA=WHITE,colorB=BLUE,text_switch=[],event_args=()):
 		"""Creation of a button
 
 		Args:
@@ -20,6 +21,7 @@ class Button:
    
 			text_switch (list(string), optional): when the button is clicked the text change s
    				uccessively with those in this list and then go back to the original one etc. Defaults to [].
+			event_args (tuple()): args given to event. Default to ()
 		"""
 		#Core attributes
 		self.font = pygame.font.Font("assets/fonts/FredokaOne-Regular.ttf", text_size)
@@ -33,7 +35,11 @@ class Button:
 		# top rectangle 
 		self.top_rect = pygame.Rect(pos,(width,height))
 		self.top_color = self.color1
+  
+		#event triggered
 		self.event = event
+		self.event_args = event_args
+	
 		# bottom rectangle 
 		self.bottom_rect = pygame.Rect(pos,(width,height))
 		self.bottom_color = '#354B5E'
@@ -96,9 +102,10 @@ class Button:
 					self.switch_counter = (self.switch_counter+1)%self.nb_switch 
 					
      				#trigger event
-					self.event()
+					self.event(*self.event_args)
 		else:
 			#reset the colors and button animation
 			self.dynamic_elecation = self.elevation
 			self.top_color = self.color2
 			self.text_color=self.color1
+   
