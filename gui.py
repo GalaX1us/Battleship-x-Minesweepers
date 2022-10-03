@@ -349,7 +349,7 @@ def settings_menu():
     """
     #creation of the buttons
     buttons = []
-    
+    buttons.append(Button('Main menu', 50,main_menu,525,80,(80,750),SCREEN))
     #main loop of the gfunction
     running = True
     while running:
@@ -362,7 +362,7 @@ def settings_menu():
         SCREEN.fill(GREY)
         
         #show title
-        draw_text( "Settings", 80, HEIGHT/3, size=100, color=BLUE)
+        draw_text( "Settings", WIDTH/5, 0, size=100, color=BLUE)
         
         #show buttons
         buttons_draw(buttons)
