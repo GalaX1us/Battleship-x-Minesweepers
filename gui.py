@@ -203,7 +203,6 @@ def draw_player_grid(game):
     #display the moves made by the opponent
     draw_shot_fired(game.get_current_opponent(),game,search=False)
     
-
 def main_loop():
     """
         Main loop of the game, display the game grid
@@ -275,21 +274,17 @@ def main_loop():
         #display buttons
         buttons_draw(buttons)
         
-        #update screen
-        pygame.display.update()
-        mainClock.tick(30)
-        
         #moves on to the next round
         if played:
             time.sleep(1)
             game.next_round()
             played=False
+            
+        #update screen
+        pygame.display.update()
+        mainClock.tick(FPS)
+        
 
-def selection_menu():
-    """
-        loop and window that manage the placement of ships and mines by the players
-    """
-    pass
 
 def help_menu():
     """
@@ -313,40 +308,68 @@ def help_menu():
         
         #ship background
         rec = pygame.Rect(55, 30 , 3*TILE_SIZE, TILE_SIZE)
-        pygame.draw.rect(SCREEN, BLUE , rec, border_radius=50)
-        draw_text("Ships", 320, 35, color=BLUE)
+        pygame.draw.rect(SCREEN, ELEMENT_COLOR["Ship"] , rec, border_radius=50)
+        draw_text("Ships", 320, 35, color=ELEMENT_COLOR["Ship"])
         
         #mine help   
-        pygame.draw.circle(SCREEN, RED, (225,160), 40)
-        draw_text("Mines", 320, 135, color=RED)
+        pygame.draw.circle(SCREEN, ELEMENT_COLOR["Mine"], (225,160), 40)
+        draw_text("Mines", 320, 135, color=ELEMENT_COLOR["Mine"])
         
         #exploded mine help
-        pygame.draw.circle(SCREEN, RED, (225,265), 40)
-        draw_text('X', 191,210,size=90,color=BLACK)
-        draw_text("Exploded", 320, 235, color=BLACK)
+        pygame.draw.circle(SCREEN, MOVE_COLOR['E'][0], (225,265), 40)
+        draw_text('X', 191,210,size=90,color=MOVE_COLOR['E'][1])
+        draw_text("Exploded", 320, 235, color=MOVE_COLOR['E'][1])
         
         #hit help
-        pygame.draw.circle(SCREEN, ORANGE, (225,365), 40)
-        draw_text("Hit", 320, 335, color=ORANGE)
+        pygame.draw.circle(SCREEN, MOVE_COLOR['H'], (225,365), 40)
+        draw_text("Hit", 320, 335, color=MOVE_COLOR['H'])
         
         #sunk help
         rec2 = pygame.Rect(55, 430 , 3*TILE_SIZE, TILE_SIZE)
-        pygame.draw.rect(SCREEN, RED , rec2, border_radius=50)
-        draw_text("Sunk", 320, 435, color=RED)
+        pygame.draw.rect(SCREEN, MOVE_COLOR['S'] , rec2, border_radius=50)
+        draw_text("Sunk", 320, 435, color=MOVE_COLOR['S'])
         
         #missed help
-        pygame.draw.circle(SCREEN, GREEN, (225,565), 40)
-        draw_text("Missed", 320, 535, color=GREEN)
+        pygame.draw.circle(SCREEN, MOVE_COLOR['M'], (225,565), 40)
+        draw_text("Missed", 320, 535, color=MOVE_COLOR['M'])
         
         #show buttons
         buttons_draw(buttons)
         
         #update screen
         pygame.display.update()  
-        mainClock.tick(30)
+        mainClock.tick(FPS)
 
 def comming_soon():
     print("Work in progress")
+    
+def settings_menu():
+    """
+        loop and window that allow the user to tweaks the settings of the game
+    """
+    #creation of the buttons
+    buttons = []
+    
+    #main loop of the gfunction
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                quit()
+                
+            
+        SCREEN.fill(GREY)
+        
+        #show title
+        draw_text( "Settings", 80, HEIGHT/3, size=100, color=BLUE)
+        
+        #show buttons
+        buttons_draw(buttons)
+        #update screen
+        pygame.display.update()  
+        mainClock.tick(FPS)
+
 
 def main_menu():
     """
@@ -355,8 +378,10 @@ def main_menu():
     #creation of the buttons
     buttons = []
     buttons.append(Button('Human Vs Human', 50,main_loop,530,80,(80,450),SCREEN)) 
-    buttons.append(Button('Human Vs AI', 50,comming_soon,530,80,(80,600),SCREEN,text_switch=["Work in progress"])) 
-    buttons.append(Button('Help', 50,help_menu,525,80,(80,750),SCREEN)) 
+    buttons.append(Button('Human Vs AI', 50,comming_soon,530,80,(80,550),SCREEN,text_switch=["Work in progress"])) 
+    buttons.append(Button('Settings', 50,settings_menu,530,80,(80,650),SCREEN)) 
+    buttons.append(Button('Help', 50,help_menu,260,80,(80,750),SCREEN)) 
+    buttons.append(Button('Exit', 50,exit,260,80,(350,750),SCREEN)) 
     
     #main loop of the gfunction
     running = True
@@ -377,7 +402,7 @@ def main_menu():
         buttons_draw(buttons)
         #update screen
         pygame.display.update()  
-        mainClock.tick(30)
+        mainClock.tick(FPS)
 
 if __name__ == "__main__":
     main_menu()

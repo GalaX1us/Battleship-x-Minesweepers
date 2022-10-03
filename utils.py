@@ -13,6 +13,9 @@ YELLOW = (255,233,0)
 #colors corresponding to each move
 MOVE_COLOR={'M':BLUE,'H':ORANGE,'S':RED,'E':[YELLOW,BLACK]}
 
+#color corresponding to each starting elements
+ELEMENT_COLOR={"Ship":L_GREY,"Mine":YELLOW}
+
 #tiles
 TILE_SIZE = 70
 NB_TILE = 10
