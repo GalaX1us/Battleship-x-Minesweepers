@@ -300,7 +300,7 @@ def help_menu(game:Game):
     
     #buttons creation
     buttons = []
-    buttons.append(Button('Main menu', 50,main_menu,525,80,(80,750),SCREEN,event_args=(game,)))
+    buttons.append(Button('Main menu', 50,main_menu,500,80,(100,750),SCREEN,event_args=(game,)))
     
     #main loop of the function
     running = True
@@ -354,11 +354,22 @@ def settings_menu(game:Game):
     """
     #creation of the buttons
     buttons = []
-    buttons.append(Button('Main menu', 50,main_menu,525,80,(80,750),SCREEN,event_args=(game,)))
-    buttons.append(Button('-', 100,game.change_hint_radius,100,100,(100,200),SCREEN,event_args=(-1,),
+    buttons.append(Button('Main menu', 50,main_menu,500,80,(100,750),SCREEN,event_args=(game,)))
+    buttons.append(Button('-', 100,game.change_hint_radius,100,100,(100,70),SCREEN,event_args=(-1,),
                           font="assets/fonts/EricaOne-Regular.ttf"))
-    buttons.append(Button('+', 100,game.change_hint_radius,100,100,(500,200),SCREEN,event_args=(1,),
+    buttons.append(Button('+', 100,game.change_hint_radius,100,100,(500,70),SCREEN,event_args=(1,),
                           font="assets/fonts/EricaOne-Regular.ttf"))
+    buttons.append(Button('<', 100,game.switch_random_placement,100,100,(100,250),SCREEN))
+    buttons.append(Button('>', 100,game.switch_random_placement,100,100,(500,250),SCREEN))
+    buttons.append(Button('-', 100,game.change_ship_nb,100,100,(100,430),SCREEN,event_args=(-1,),
+                          font="assets/fonts/EricaOne-Regular.ttf"))
+    buttons.append(Button('+', 100,game.change_ship_nb,100,100,(500,430),SCREEN,event_args=(1,),
+                          font="assets/fonts/EricaOne-Regular.ttf"))
+    buttons.append(Button('-', 100,game.change_mine_nb,100,100,(100,610),SCREEN,event_args=(-1,),
+                          font="assets/fonts/EricaOne-Regular.ttf"))
+    buttons.append(Button('+', 100,game.change_mine_nb,100,100,(500,610),SCREEN,event_args=(1,),
+                          font="assets/fonts/EricaOne-Regular.ttf"))
+    
     #main loop of the gfunction
     running = True
     while running:
@@ -371,10 +382,22 @@ def settings_menu(game:Game):
         SCREEN.fill(GREY)
         
         #show title
-        draw_text( "Settings", 170, 0, size=90, color=BLUE)
         
-        draw_text( "Hint radius", 215, 130, size=50, color=BLUE)
-        draw_text( "{}".format(game.get_hint_radius()), 320, 190, size=90, color=BLUE)
+        draw_text( "Hint radius", 215, 0, size=50, color=BLUE)
+        draw_text( str(game.get_hint_radius()), 325, 65, size=80, color=BLUE)
+        
+        draw_text( "Random placement", 120, 180, size=50, color=BLUE)       
+        if game.get_random_placement():
+            draw_text("On", 300,250, size=70, color=GREEN)
+        else:
+            draw_text("Off", 290,250, size=70, color=RED)
+            
+        draw_text( "Number of ships", 155, 360, size=50, color=BLUE)
+        draw_text( str(game.get_ship_nb()), 325, 430, size=80, color=BLUE)
+        
+        draw_text( "Number of mines", 145, 540, size=50, color=BLUE)
+        draw_text( str(game.get_mine_nb()), 325, 610, size=80, color=BLUE)
+        
         #show buttons
         buttons_draw(buttons)
         #update screen
@@ -391,11 +414,11 @@ def main_menu(game:Game):
     """
     #creation of the buttons
     buttons = []
-    buttons.append(Button('Human Vs Human', 50,main_loop,530,80,(80,450),SCREEN,event_args=(game,))) 
-    buttons.append(Button('Human Vs AI', 50,comming_soon,530,80,(80,550),SCREEN,text_switch=["Work in progress"])) 
-    buttons.append(Button('Settings', 50,settings_menu,530,80,(80,650),SCREEN,event_args=(game,))) 
-    buttons.append(Button('Help', 50,help_menu,260,80,(80,750),SCREEN,event_args=(game,))) 
-    buttons.append(Button('Exit', 50,exit,260,80,(350,750),SCREEN)) 
+    buttons.append(Button('Human Vs Human', 50,main_loop,500,80,(100,450),SCREEN,event_args=(game,))) 
+    buttons.append(Button('Human Vs AI', 50,comming_soon,500,80,(100,550),SCREEN,text_switch=["Work in progress"])) 
+    buttons.append(Button('Settings', 50,settings_menu,500,80,(100,650),SCREEN,event_args=(game,))) 
+    buttons.append(Button('Help', 50,help_menu,245,80,(100,750),SCREEN,event_args=(game,))) 
+    buttons.append(Button('Exit', 50,exit,245,80,(355,750),SCREEN)) 
     
     #main loop of the gfunction
     running = True
@@ -409,7 +432,7 @@ def main_menu(game:Game):
         SCREEN.fill(GREY)
         
         #show title
-        draw_text( "Battle Ship", 80, HEIGHT/3, size=100, color=BLUE)
+        draw_text( "Battle Ship", 60, HEIGHT/3, size=110, color=BLUE)
         #show logo
         SCREEN.blit(logo, (WIDTH/4,-30))
         #show buttons

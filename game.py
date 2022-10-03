@@ -5,9 +5,14 @@ class Game():
     def __init__(self):
         """Create a new game instance, a game instance handles players rounds and players moves
         """
+        
+        self.nb_ships = 3
+        self.nb_mines = 8
+        self.random_placement = True
+        
         #init of both players
-        self.player1 = Player("J1")
-        self.player2 = Player("J2")
+        self.player1 = Player("P1")
+        self.player2 = Player("P2")
         self.current_player = self.player1
         self.current_opponent = self.player2
         
@@ -28,14 +33,40 @@ class Game():
         #Display none if 3
         self.hint_option = 0
         self.hint_radius = 2
-        
+    
+    def get_ship_nb(self):
+        return self.nb_ships
+    
+    def change_ship_nb(self,val):
+        self.nb_ships+=val
+        if self.nb_ships > MAX_SHIP_NB:
+            self.nb_ships=MAX_SHIP_NB
+        elif self.nb_ships<MIN_SHIP_NB:
+            self.nb_ships=MIN_SHIP_NB
+    
+    def get_mine_nb(self):
+        return self.nb_mines
+    
+    def change_mine_nb(self,val):
+        self.nb_mines+=val
+        if self.nb_mines > MAX_MINE_NB:
+            self.nb_mines=MAX_MINE_NB
+        elif self.nb_mines<MIN_MINE_NB:
+            self.nb_mines=MIN_MINE_NB
+    
+    def get_random_placement(self):
+        return self.random_placement
+    
+    def switch_random_placement(self):
+        self.random_placement = not self.random_placement
+    
     def get_hint_radius(self):
         return self.hint_radius
     
     def change_hint_radius(self,val):
         self.hint_radius+=val
-        if self.hint_radius > 3:
-            self.hint_radius=3
+        if self.hint_radius > MAX_HINT_RADIUS:
+            self.hint_radius=MAX_HINT_RADIUS
         elif self.hint_radius<0:
             self.hint_radius=0
         

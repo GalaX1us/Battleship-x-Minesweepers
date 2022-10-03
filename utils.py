@@ -32,6 +32,13 @@ FPS = 30
 WIDTH = TILE_SIZE*NB_TILE
 HEIGHT = TILE_SIZE*NB_TILE+INFO_MARGIN_HEIGHT+GRID_SWITCH_MARGIN_HEIGHT
 
+#in game constants
+MAX_HINT_RADIUS = 3
+MAX_SHIP_NB = 8
+MIN_SHIP_NB = 1
+MAX_MINE_NB = 15
+MIN_MINE_NB = 0
+
 def get_index(x,y):
     """compute the index from x and y coords
 
