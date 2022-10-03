@@ -274,16 +274,16 @@ def main_loop():
         #display buttons
         buttons_draw(buttons)
         
-        #moves on to the next round
-        if played:
-            time.sleep(1)
-            game.next_round()
-            played=False
             
         #update screen
         pygame.display.update()
         mainClock.tick(FPS)
         
+        #moves on to the next round
+        if played:
+            time.sleep(1)
+            game.next_round()
+            played=False
 
 
 def help_menu():
