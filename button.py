@@ -2,7 +2,7 @@ import pygame
 from utils import *
 
 class Button:
-	def __init__(self,text,text_size,event,width,height,pos,list_buttons,screen,colorA=WHITE,colorB=BLUE,text_switch=[]):
+	def __init__(self,text,text_size,event,width,height,pos,screen,colorA=WHITE,colorB=BLUE,text_switch=[]):
 		"""Creation of a button
 
 		Args:
@@ -12,7 +12,6 @@ class Button:
 			width (int): width of the button
 			height (int): height of the button
 			pos (list(int,int)): position of the button on the screen (x,y)
-			list_buttons (list(Button)): list in which the newly created button will be append
 			screen (SCREEN): screen on which the button will be displayed
    
 			colorA (tuple(int,int,int), optional): primary color. Defaults to WHITE.
@@ -49,7 +48,6 @@ class Button:
 
 		self.text_surf = self.font.render(text,True,self.text_color)
 		self.text_rect = self.text_surf.get_rect(center = self.top_rect.center)
-		list_buttons.append(self)
 
 	def draw(self):
 		"""display the button on the screen

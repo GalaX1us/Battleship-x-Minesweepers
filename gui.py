@@ -215,9 +215,9 @@ def main_loop():
     
     #buttons creation
     buttons = []
-    button1 = Button("Search grid", 50,game.switch_grid,WIDTH/2,75,(WIDTH/4,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),buttons,SCREEN, text_switch=["Your grid"],colorB=GREEN)
-    button2 = Button("Ship", 50,game.switch_hint,WIDTH/4,75,(0,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),buttons,SCREEN, text_switch=["Mine","Both","None"],colorB=BLUE)
-    button2 = Button("Quit", 50,quit,WIDTH/4,75,(3*WIDTH/4,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),buttons,SCREEN,colorB=RED)
+    buttons.append(Button("Search grid", 50,game.switch_grid,WIDTH/2,75,(WIDTH/4,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN, text_switch=["Your grid"],colorB=GREEN))
+    buttons.append(Button("Ship", 50,game.switch_hint,WIDTH/4,75,(0,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN, text_switch=["Mine","Both","None"],colorB=BLUE))
+    buttons.append(Button("Quit", 50,quit,WIDTH/4,75,(3*WIDTH/4,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN,colorB=RED))
     
     #main loop
     while running:
@@ -298,7 +298,7 @@ def help_menu():
     
     #buttons creation
     buttons = []
-    button1 = Button('Main menu', 50,main_menu,525,80,(80,750),buttons,SCREEN)
+    buttons.append(Button('Main menu', 50,main_menu,525,80,(80,750),SCREEN))
     
     #main loop of the function
     running = True
@@ -354,9 +354,9 @@ def main_menu():
     """
     #creation of the buttons
     buttons = []
-    button1 = Button('Human Vs Human', 50,main_loop,530,80,(80,450),buttons,SCREEN)
-    button2 = Button('Human Vs AI', 50,comming_soon,530,80,(80,600),buttons,SCREEN,text_switch=["Work in progress"])
-    button3 = Button('Help', 50,help_menu,525,80,(80,750),buttons,SCREEN)
+    buttons.append(Button('Human Vs Human', 50,main_loop,530,80,(80,450),SCREEN)) 
+    buttons.append(Button('Human Vs AI', 50,comming_soon,530,80,(80,600),SCREEN,text_switch=["Work in progress"])) 
+    buttons.append(Button('Help', 50,help_menu,525,80,(80,750),SCREEN)) 
     
     #main loop of the gfunction
     running = True
