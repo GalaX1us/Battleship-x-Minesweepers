@@ -1,9 +1,10 @@
+from typing_extensions import Self
 from ship import *
 from mine import *
 from utils import *
 
 class Player():
-    def __init__(self,name,ship_sizes=[3,3,3],mine_nb=8):
+    def __init__(self,name,ship_sizes=[3,3,3],mine_nb=8,r_placement=True):
         #player's name
         self.name = name
         #max hp value
@@ -11,10 +12,12 @@ class Player():
         #player's hp value 
         self.hp = self.max_hp
         #list of all the player's ships 
+        self.ships_to_be_placed = ship_sizes
         self.ships = []
         #list of all index of the tiles occupied by the player's ships
         self.list_tiles_ships = []
         #list of all the player's mines
+        self.mines_to_be_placed = mine_nb
         self.mines = []
         #list of all index of the tiles occupied by a player's mines
         self.list_tiles_mines = []
@@ -23,12 +26,41 @@ class Player():
         #list of hint for each move made by the player
         self.hint_list = {}
         
-        #automatic placement of all ships
-        self.place_ships(ship_sizes)
-        #automatic placement of all mines
-        self.place_mines(nb=mine_nb)
+        self.ready = False
         
-    def place_ships(self, sizes=[3,3,3]):
+        
+        if r_placement:
+            #automatic placement of all ships
+            self.auto_place_ships(self.ships_to_be_placed)
+            #automatic placement of all mines
+            self.auto_place_mines(nb=self.mines_to_be_placed)
+            self.check_ready()
+    
+    def get_ships_to_be_placed(self):
+        return self.ships_to_be_placed
+    
+    def is_ready(self):
+        return self.ready
+    
+    def check_ready(self):
+        if len(self.ships)==len(self.ships_to_be_placed) and len(self.mines) == self.mines_to_be_placed:
+            self.ready=True
+    
+    def place_ship(self,size,coords,orient):
+        ship = Ship(size,coords,orient)
+        if ship.check_validity(self.list_tiles_ships,self.list_tiles_mines):
+            self.ships.append(ship)
+            self.list_tiles_ships.extend(ship.get_occupied_tiles())
+            self.check_ready()
+    
+    def place_mine(self,coords):
+        mine = Mine(coords)
+        if mine.check_validity(self.list_tiles_mines,self.list_tiles_ships):
+            self.mines.append(mine)
+            self.list_tiles_mines.append(mine.get_index())
+            self.check_ready()
+            
+    def auto_place_ships(self, sizes=[3,3,3]):
         """Randomly places all the ships
         
         Args:
@@ -40,14 +72,14 @@ class Player():
             ship = Ship(size=s)
             
             #while the ship is invalid create another one
-            while not ship.check_validity(self.list_tiles_ships):
+            while not ship.check_validity(self.list_tiles_ships,self.list_tiles_mines):
                 ship = Ship(size=s)
             
             #add the newly created ship to the player's ship list
             self.ships.append(ship)
             self.list_tiles_ships.extend(ship.get_occupied_tiles())
             
-    def place_mines(self,nb=8):
+    def auto_place_mines(self,nb=8):
         """Randomly places all the mines
         
         Args:
@@ -55,7 +87,7 @@ class Player():
         """
         for x in range(nb):
             mine = Mine()
-            while not mine.check_validity(self.mines,self.list_tiles_ships):
+            while not mine.check_validity(self.list_tiles_mines,self.list_tiles_ships):
                 mine = Mine()
                 
             self.mines.append(mine)

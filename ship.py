@@ -3,17 +3,14 @@ from utils import *
 
 class Ship():
     
-    def __init__(self,size=3,nom="Destoyer"):
+    def __init__(self,size=3,coords=(),orient=''):
         
-        #ship's name
-        self.nom = nom
         #horizontal coord of the ship
-        self.x = random.randrange(0,9)
+        self.x = random.randrange(0,9) if not coords else coords[0]
         #vertical coord of the ship
-        self.y = random.randrange(0,9)
-        
+        self.y = random.randrange(0,9) if not coords else coords[1]
         #orientation of the ship (Horizontal, vertical)
-        self.orientation = random.choice(['H','V'])
+        self.orientation = random.choice(['H','V']) if not orient else orient
         
         #size of the ship
         self.size = size
@@ -39,11 +36,12 @@ class Ship():
         elif self.orientation == 'V':
             return [idx + i*10 for i in range(self.size)]
         
-    def check_validity(self,ship_list):
+    def check_validity(self,ship_list,mine_list):
         """Check if this ship has a valid placement
         
         Args:
             ship_list (list(int)): list of indexes of all ships that has already been placed
+            mine_list (list(int)): list of indexes of all mines that has already been placed
 
         Returns:
             bool: is the placement valid (True/False)
@@ -59,6 +57,9 @@ class Ship():
             
             #check if the ship overlaps a ship already placed before
             if tile in ship_list:
+                return False
+            
+            if tile in mine_list:
                 return False
                 
         return True
@@ -80,14 +81,6 @@ class Ship():
         self.hit_tiles.append(idx)
         if len(self.hit_tiles)==self.size:
             self.sunk=True
-    
-    def get_nom(self):
-        """Returns the name of the ship
-
-        Returns:
-            string: ship name
-        """
-        return self.nom
     
     def is_sunk(self):
         """Say if the boat is sunk or not

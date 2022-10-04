@@ -1,3 +1,4 @@
+from numpy import swapaxes
 from player import Player
 import random
 from utils import *
@@ -39,8 +40,6 @@ class Game():
         self.current_player = self.player1
         self.current_opponent = self.player2
         
-        #number of rounds played
-        self.rounds = 0
         #is the game over yet
         self.over = False
         
@@ -57,12 +56,18 @@ class Game():
         self.hint_option = 0
         self.hint_radius = 2
         
+        self.placement_type = "Ship"      
     
+    def get_placement_type(self):
+        return self.placement_type
+    
+    def switch_placement_type(self):
+        self.placement_type = "Ship" if self.placement_type=="Mine" else "Mine"
     
     def start_game(self):
         sizes = generate_ship_sizes(self.nb_ships)
-        self.player1 = Player("P1",sizes,self.nb_mines)
-        self.player2 = Player("P2",sizes,self.nb_mines)
+        self.player1 = Player("P1",sizes,self.nb_mines,self.random_placement)
+        self.player2 = Player("P2",sizes,self.nb_mines,self.random_placement)
         self.current_player = self.player1
         self.current_opponent = self.player2
     
@@ -169,12 +174,10 @@ class Game():
         """
         return self.current_opponent
     
-    def next_round(self):
+    def change_player(self):
         """Update game properties for the next round :
-            - increments the number of rounds
             - swap the role of the players
         """
-        self.rounds+=1
         self.current_opponent ,self.current_player=self.current_player, self.current_opponent
         
     def compute_hint(self,idx):

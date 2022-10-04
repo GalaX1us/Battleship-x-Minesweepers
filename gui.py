@@ -1,6 +1,8 @@
+from matplotlib.pyplot import install_repl_displayhook
 import pygame
 import pygame.freetype
 import sys
+from mine import Mine
 from player import Player
 from ship import Ship
 import random
@@ -175,6 +177,31 @@ def draw_mines(player, x_offset=0, y_offset=INFO_MARGIN_HEIGHT):
         
         #draw a circle corresponding to a mine
         pygame.draw.circle(SCREEN, YELLOW, (x+x_offset,y+y_offset), TILE_SIZE//2-INDENT)
+        
+def show_single_ship(size,coords,orient):
+    x = coords[0]*TILE_SIZE+INDENT
+    y = coords[1]*TILE_SIZE+INDENT+INFO_MARGIN_HEIGHT
+    
+    #compute width and height of the ship
+    if orient == 'H':
+        width = size*TILE_SIZE -2*INDENT
+        height = TILE_SIZE -2*INDENT
+    else:
+        width = TILE_SIZE -2*INDENT
+        height = TILE_SIZE*size -2*INDENT
+    
+    #draw the ship
+    rec = pygame.Rect(x, y, width, height)
+        
+    #display the sip on the screen
+    pygame.draw.rect(SCREEN, L_GREY , rec, border_radius=50)
+    
+def show_single_mine(coords):
+    x = coords[0]*TILE_SIZE+TILE_SIZE/2
+    y = coords[1]*TILE_SIZE+TILE_SIZE/2+INFO_MARGIN_HEIGHT
+    
+    #draw a circle corresponding to a mine
+    pygame.draw.circle(SCREEN, YELLOW, (x,y), TILE_SIZE//2-INDENT)
 
 def draw_search_grid(game):
     """display current player searching grid
@@ -212,6 +239,8 @@ def main_loop(game:Game):
     """    
     #game initialisation
     game.start_game()
+    if not game.get_random_placement():
+        placement_menu(game)
     running = True
     played = False
     
@@ -290,9 +319,100 @@ def main_loop(game:Game):
         #moves on to the next round
         if played:
             time.sleep(1)
-            game.next_round()
+            game.change_player()
             played=False
 
+def placement_menu(game:Game):
+    #buttons creation
+    buttons = []
+    buttons.append(Button("Ship", 50,game.switch_placement_type,WIDTH/4,75,(0,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN, 
+                          text_switch=["Mine"],colorB=BLUE))
+    buttons.append(Button("Quit", 50,quit,WIDTH/4,75,(3*WIDTH/4,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN,colorB=RED))
+    
+    orient = 'V'
+    
+    #main loop of the function
+    running = True
+    while running:
+        curr=game.get_current_player()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                quit()
+                
+            if event.type == pygame.KEYDOWN:
+                if event.type == pygame.K_SPACE:
+                    orient = 'H' if orient=='V' else 'V'
+            #get mouse clik
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                
+                if pygame.mouse.get_pressed()[2]:
+                    orient = 'H' if orient=='V' else 'V'
+                    
+                elif pygame.mouse.get_pressed()[0]:
+                    
+                    #get mouse coords
+                    location = pygame.mouse.get_pos()
+                    x,y,validity=get_position(location[0], location[1])
+                    
+                    #check if coords are valid and correspond to a specific tile
+                    if validity and not curr.is_ready():
+                        
+                        if game.get_placement_type() == "Ship" and len(curr.get_ships())<game.get_ship_nb():
+                        
+                            s=curr.get_ships_to_be_placed()[len(curr.get_ships())]
+                            curr.place_ship(s,(x,y),orient)
+                            
+                        elif game.get_placement_type() == "Mine" and len(curr.get_mines())<game.get_mine_nb():
+                            curr.place_mine((x,y))
+                                    
+        
+        #fill screen background
+        SCREEN.fill(GREY)
+        
+        #draw grid
+        draw_player_grid(game)
+        
+        location = pygame.mouse.get_pos()
+        x,y,validity=get_position(location[0], location[1])
+        
+        if validity and not curr.is_ready():
+            
+            if game.get_placement_type() == "Ship" and len(curr.get_ships())<game.get_ship_nb():
+                s=curr.get_ships_to_be_placed()[len(curr.get_ships())]
+                if Ship(s,(x,y),orient).check_validity(curr.get_list_tiles_ships(),curr.get_list_tiles_mines()):
+                    show_single_ship(s,(x,y),orient)
+                    
+            elif game.get_placement_type() == "Mine" \
+                and Mine((x,y)).check_validity(curr.get_list_tiles_mines(),curr.get_list_tiles_ships()) \
+                and len(curr.get_mines())<game.get_mine_nb():
+                    
+                show_single_mine((x,y))
+        
+        draw_text("Placement phase", 110, 5,size=70,color=BLUE)
+        
+        #display current player name
+        draw_text(curr.get_name(), 20, 5,size=70,color=GREEN)
+        if game.get_placement_type()=="Ship":
+            draw_text("{:<2} Left".format(game.get_ship_nb()-len(curr.get_ships())), 235, 800,size=70,color=BLUE)
+        else:
+            draw_text("{:<2} Left".format(game.get_mine_nb()-len(curr.get_mines())), 235, 800,size=70,color=BLUE)
+        
+        #show buttons
+        buttons_draw(buttons)
+        
+        #update screen
+        pygame.display.update()  
+        mainClock.tick(FPS)
+        
+        if curr.is_ready() and game.get_current_opponent().is_ready():
+            game.change_player()
+            time.sleep(1)
+            running=False
+            
+        elif curr.is_ready():
+            game.change_player()
+        
 
 def help_menu(game:Game):
     """

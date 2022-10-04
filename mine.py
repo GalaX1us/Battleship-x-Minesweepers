@@ -2,9 +2,9 @@ import random
 from utils import *
 
 class Mine():
-    def __init__(self):
-        self.x = random.randrange(0,NB_TILE-1)
-        self.y = random.randrange(0,NB_TILE-1)
+    def __init__(self,coords=()):
+        self.x = random.randrange(0,NB_TILE-1) if not coords else coords[0]
+        self.y = random.randrange(0,NB_TILE-1) if not coords else coords[1]
         self.index = self.y*NB_TILE+self.x
     
     def check_validity(self,list_mines,list_ships):
