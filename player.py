@@ -167,7 +167,6 @@ class Player():
         
         if missed:
             self.add_move(idx, 'M')
-        
+            
         return True
-    
     

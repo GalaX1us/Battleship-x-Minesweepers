@@ -145,11 +145,16 @@ class Game():
                     
         return nb_m, nb_s
     
-    def play(self,x,y):
-        played = self.current_player.make_move(x,y,self.current_opponent)
+    def play(self,x=0,y=0):
+        
+        played = True
+        if type(self.current_player)==PlayerAI:
+            index = self.current_player.make_move(self.current_opponent)
+        else:
+            played = self.current_player.make_move(x,y,self.current_opponent)
         
         if played:
-            idx=get_index(x,y)
+            idx = index if type(self.current_player)==PlayerAI else get_index(x,y)
             neib = self.find_neighbors(idx)
             nb_m, nb_s = self.compute_hint(neib)
             args = (idx,neib,nb_s,nb_m) if type(self.current_player)==PlayerAI else (idx, nb_s, nb_m)
