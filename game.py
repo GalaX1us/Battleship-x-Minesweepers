@@ -152,7 +152,7 @@ class Game():
             idx=get_index(x,y)
             neib = self.find_neighbors(idx)
             nb_m, nb_s = self.compute_hint(neib)
-            args = () if type(self.current_player)==PlayerAI else (idx, (nb_s,nb_m))
+            args = (idx,neib,nb_s,nb_m) if type(self.current_player)==PlayerAI else (idx, nb_s, nb_m)
             self.current_player.add_hint(*args)
         
         return played
