@@ -22,6 +22,8 @@ class Player():
         self.list_tiles_mines = set()
         #list containing all the moves made by the player
         self.moves_made = ['U' for i in range(100)]
+        self.moves_made_indexes = set()
+        
         #list of hint for each move made by the player
         self.hint_list = {}
         
@@ -85,17 +87,10 @@ class Player():
                 mine = Mine()
                 
             self.mines.add(mine)
-            self.list_tiles_mines.add(mine.index)
+            self.list_tiles_mines.add(mine.index)      
     
-    def add_hint(self,idx,value):
-        """Add an hint to the hint list
-
-        Args:
-            idx (int): index of the tile
-            value (tuple(int,int)): hints about ships and mines 
-        """
-        self.hint_list[idx]=value        
-    
+    def add_hint(self,idx,nb_s,nb_m):
+        self.hint_list[idx]=(nb_s,nb_m)
     
     def add_move(self,idx,value):
         """Update the list of moves made by player 
@@ -105,6 +100,7 @@ class Player():
             value (char): type of the move
         """
         self.moves_made[idx]=value
+        self.moves_made_indexes.add(idx)
     
     def get_hp_color(self):
         """Returns player's hp and the color corresponding to this value :
@@ -134,5 +130,43 @@ class Player():
         """Removes one HP from the player
         """
         self.hp=max(0, self.hp-1)
-    
+        
+    def make_move(self,x,y,opponent):
+        """This function performs the player's move
+
+        Args:
+            x (int): horizontal coord of the move
+            y (int): vertical coord of the move
+
+        Returns:
+            bool:   return False if a move has already been made at this coords and True otherwise
+        """
+        missed=True
+        idx = 10*y+x
+        
+        if self.moves_made[idx]!='U':
+            return False
+        
+        if idx in opponent.list_tiles_mines:
+            self.boom()
+            self.add_move(idx, 'E')
+            missed=False
+        
+        for ship in opponent.ships:
+            if idx in ship.occupied_tiles:
+                ship.getting_shot(idx)
+                self.add_move(idx, 'H')
+                
+                #check if the ship is sunk
+                if ship.sunk:
+                    for i in ship.occupied_tiles:
+                        self.add_move(i, 'S')
+                    opponent.boom()
+                missed=False
+                break
+        
+        if missed:
+            self.add_move(idx, 'M')
+            
+        return True
     
