@@ -57,10 +57,7 @@ class Game():
         self.hint_radius = 2
         
         self.placement_type = "Ship"      
-    
-    def get_placement_type(self):
-        return self.placement_type
-    
+
     def switch_placement_type(self):
         self.placement_type = "Ship" if self.placement_type=="Mine" else "Mine"
     
@@ -71,9 +68,6 @@ class Game():
         self.current_player = self.player1
         self.current_opponent = self.player2
     
-    def get_ship_nb(self):
-        return self.nb_ships
-    
     def change_ship_nb(self,val):
         self.nb_ships+=val
         if self.nb_ships > MAX_SHIP_NB:
@@ -81,24 +75,15 @@ class Game():
         elif self.nb_ships<MIN_SHIP_NB:
             self.nb_ships=MIN_SHIP_NB
     
-    def get_mine_nb(self):
-        return self.nb_mines
-    
     def change_mine_nb(self,val):
         self.nb_mines+=val
         if self.nb_mines > MAX_MINE_NB:
             self.nb_mines=MAX_MINE_NB
         elif self.nb_mines<MIN_MINE_NB:
             self.nb_mines=MIN_MINE_NB
-    
-    def get_random_placement(self):
-        return self.random_placement
-    
+
     def switch_random_placement(self):
         self.random_placement = not self.random_placement
-    
-    def get_hint_radius(self):
-        return self.hint_radius
     
     def change_hint_radius(self,val):
         self.hint_radius+=val
@@ -106,11 +91,6 @@ class Game():
             self.hint_radius=MAX_HINT_RADIUS
         elif self.hint_radius<0:
             self.hint_radius=0
-        
-    def game_over(self):
-        """set the game to over
-        """
-        self.over = True    
     
     def switch_grid(self):
         """
@@ -129,50 +109,6 @@ class Game():
             - Display none
         """
         self.hint_option=(self.hint_option+1)%4
-        
-    def get_grid_choice(self):
-        """Return player's grid choice
-
-        Returns:
-            bool: - return True for search grid
-                  - return False for player's own grid
-        """
-        return self.show_search_grid
-    
-    def get_hint_choice(self):
-        """Return player's hint choice
-
-        Returns:
-            int: - Only display ships hint if 0
-                 - Only display mines hint if 1
-                 - Display both if 2
-                 - Display none if 3
-        """
-        return self.hint_option
-        
-    def check_game(self):
-        """Check if the game is over
-
-        Returns:
-            bool: True if the game is over False otherwise
-        """
-        return self.over
-    
-    def get_current_player(self):
-        """Return player currently playing
-
-        Returns:
-            Player: player currently playing
-        """
-        return self.current_player
-    
-    def get_current_opponent(self):
-        """Return current opponent
-
-        Returns:
-            Player: return current opponent
-        """
-        return self.current_opponent
     
     def change_player(self):
         """Update game properties for the next round :
@@ -192,9 +128,9 @@ class Game():
         nb_s = 0
         for a in range(-self.hint_radius,self.hint_radius+1):
             for b in range((abs(a)-self.hint_radius),-(abs(a)-self.hint_radius)+1):
-                if 0<=x+a<NB_TILE and 0<=y+b<NB_TILE and get_index(x+a,y+b) in self.current_opponent.get_list_tiles_mines():
+                if 0<=x+a<NB_TILE and 0<=y+b<NB_TILE and get_index(x+a,y+b) in self.current_opponent.list_tiles_mines:
                     nb_m+=1
-                elif 0<=x+a<NB_TILE and 0<=y+b<NB_TILE and get_index(x+a,y+b) in self.current_opponent.get_list_tiles_ships() :
+                elif 0<=x+a<NB_TILE and 0<=y+b<NB_TILE and get_index(x+a,y+b) in self.current_opponent.list_tiles_ships :
                     nb_s+=1
         self.current_player.add_hint(idx, (nb_s,nb_m))
 
@@ -211,22 +147,22 @@ class Game():
         missed=True
         idx = 10*y+x
         
-        if self.current_player.get_shot_fired()[idx]!='U':
+        if self.current_player.shot_fired[idx]!='U':
             return False
         
-        if idx in self.current_opponent.get_list_tiles_mines():
+        if idx in self.current_opponent.list_tiles_mines:
             self.current_player.boom()
             self.current_player.set_shot_fired(idx, 'E')
             missed=False
         
-        for ship in self.current_opponent.get_ships():
-            if idx in ship.get_occupied_tiles():
+        for ship in self.current_opponent.ships:
+            if idx in ship.occupied_tiles:
                 ship.getting_shot(idx)
                 self.current_player.set_shot_fired(idx, 'H')
                 
                 #check if the ship is sunk
                 if ship.is_sunk():
-                    for i in ship.get_occupied_tiles():
+                    for i in ship.occupied_tiles:
                         self.current_player.set_shot_fired(i, 'S')
                     self.current_opponent.boom()
                 missed=False

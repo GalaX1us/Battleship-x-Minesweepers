@@ -64,14 +64,6 @@ class Ship():
                 
         return True
     
-    def get_occupied_tiles(self):
-        """List of all indexes occupied by the ship
-        
-        Returns:
-            list(int): list of indexes
-        """
-        return self.occupied_tiles
-    
     def getting_shot(self,idx):
         """Register a shot on a particular index
         
@@ -81,43 +73,3 @@ class Ship():
         self.hit_tiles.append(idx)
         if len(self.hit_tiles)==self.size:
             self.sunk=True
-    
-    def is_sunk(self):
-        """Say if the boat is sunk or not
-        
-        Returns:
-            bool: is sunk ? (True/False)
-        """
-        return self.sunk
-    
-    def get_orientation(self):
-        """Returns the ship orientation
-        
-        Returns:
-            char: 'H' Horizontal / 'V' Vertical
-        """
-        return self.orientation
-    
-    def get_x(self):
-        """Returns the horizontal coord of the ship 
-        
-        Returns:
-            int: horizontal coord
-        """
-        return self.x
-    
-    def get_y(self):
-        """Returns the vertical coords of the ship
-
-        Returns:
-            int: vertical coord
-        """
-        return self.y
-    
-    def get_size(self):
-        """Returns the size of the shi
-
-        Returns:
-            int: size
-        """
-        return self.size

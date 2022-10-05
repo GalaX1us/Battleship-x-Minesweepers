@@ -36,11 +36,6 @@ class Player():
             self.auto_place_mines(nb=self.mines_to_be_placed)
             self.check_ready()
     
-    def get_ships_to_be_placed(self):
-        return self.ships_to_be_placed
-    
-    def is_ready(self):
-        return self.ready
     
     def check_ready(self):
         if len(self.ships)==len(self.ships_to_be_placed) and len(self.mines) == self.mines_to_be_placed:
@@ -50,7 +45,7 @@ class Player():
         ship = Ship(size,coords,orient)
         if ship.check_validity(self.list_tiles_ships,self.list_tiles_mines):
             self.ships.append(ship)
-            self.list_tiles_ships.extend(ship.get_occupied_tiles())
+            self.list_tiles_ships.extend(ship.occupied_tiles)
             self.check_ready()
     
     def place_mine(self,coords):
@@ -77,7 +72,7 @@ class Player():
             
             #add the newly created ship to the player's ship list
             self.ships.append(ship)
-            self.list_tiles_ships.extend(ship.get_occupied_tiles())
+            self.list_tiles_ships.extend(ship.occupied_tiles)
             
     def auto_place_mines(self,nb=8):
         """Randomly places all the mines
@@ -91,15 +86,7 @@ class Player():
                 mine = Mine()
                 
             self.mines.append(mine)
-            self.list_tiles_mines.append(mine.get_index())
-    def get_hint_list(self):
-        """Return the list of all hint
-        hints are in this format, tile index : (hint for ships, hint for mines)
-        
-        Returns:
-            dict(int,tuple(int,int)): dictionnary containing all hint
-        """
-        return self.hint_list
+            self.list_tiles_mines.append(mine.index)
     
     def add_hint(self,idx,value):
         """Add an hint to the hint list
@@ -110,38 +97,6 @@ class Player():
         """
         self.hint_list[idx]=value        
     
-            
-    def get_ships(self):
-        """Returns the list of all player's ship
-        
-        Returns:
-            list(Ship): player's ship list
-        """
-        return self.ships
-    
-    def get_list_tiles_ships(self):
-        """Returns the list of indexes of all tiles occupied by a ship
-        
-        Returns:
-            list(int): list of indexes
-        """
-        return self.list_tiles_ships
-
-    def get_list_tiles_mines(self):
-        """Returns the list of indexes of all tiles occupied by a mine
-        
-        Returns:
-            list(int): list of indexes
-        """
-        return self.list_tiles_mines
-    
-    def get_shot_fired(self):
-        """Returns the list of every moves made by the player
-        
-        Returns:
-            list(char): list of move
-        """
-        return self.shot_fired
     
     def set_shot_fired(self,idx,value):
         """Update the list of moves made by player 
@@ -152,21 +107,7 @@ class Player():
         """
         self.shot_fired[idx]=value
     
-    def get_mines(self):
-        """
-        Returns:
-            list(Mine): player's mine list
-        """
-        return self.mines
-    
-    def get_name(self):
-        """
-        Returns:
-            String: player's name
-        """
-        return self.name
-    
-    def get_hp(self):
+    def get_hp_color(self):
         """Returns player's hp and the color corresponding to this value :
             Green if hp > 2/3 max HP
             Orange if 2/3 max hp >= hp > 1/3 max hp
@@ -180,7 +121,7 @@ class Player():
             color=ORANGE
         if self.hp<=(1/3)*self.max_hp:
             color=RED
-        return self.hp, color
+        return color
     
     def is_alive(self):
         """Says if the player is still alive

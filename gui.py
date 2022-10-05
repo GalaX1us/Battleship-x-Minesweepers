@@ -1,11 +1,9 @@
-from matplotlib.pyplot import install_repl_displayhook
 import pygame
 import pygame.freetype
 import sys
 from mine import Mine
 from player import Player
 from ship import Ship
-import random
 from game import Game
 import time
 from button import Button
@@ -67,7 +65,7 @@ def draw_grid(x_offset=0,y_offset=INFO_MARGIN_HEIGHT):
         square = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
         pygame.draw.rect(SCREEN, WHITE, square, width=3)
         
-def draw_shot_fired(player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEIGHT,search=True):
+def draw_shot_fired(player:Player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEIGHT,search=True):
     """display all the moves that a specific player have done since the begining
 
     Args:
@@ -88,7 +86,7 @@ def draw_shot_fired(player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEIGHT,sea
         y=i//NB_TILE*TILE_SIZE+y_offset
         
         #get the move which was made on index i
-        symbol = player.get_shot_fired()[i]
+        symbol = player.shot_fired[i]
         
         #if a move was made
         if symbol != 'U':
@@ -104,24 +102,24 @@ def draw_shot_fired(player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEIGHT,sea
                 pygame.draw.circle(SCREEN, MOVE_COLOR[symbol], (x+TILE_SIZE//2,y+TILE_SIZE//2), rad)
             
             #if the move was a miss, display the infos of the surrounding tiles (radius 2)
-            if symbol == 'M' and game.get_grid_choice() and game.get_hint_choice()<=2 and game.get_hint_radius():
+            if symbol == 'M' and game.show_search_grid and game.hint_option<=2 and game.hint_radius:
                 
                 #display only ships hints
-                if game.get_hint_choice() == 0:
-                    draw_text(str(player.get_hint_list()[i][0]), x+7, y,size=30,color=L_GREY)
+                if game.hint_option == 0:
+                    draw_text(str(player.hint_list[i][0]), x+7, y,size=30,color=L_GREY)
                 
                 #display only mines hints
-                elif game.get_hint_choice() == 1:
-                    draw_text("{0:>2}".format(str(player.get_hint_list()[i][1])), x+35, y+32,size=30,color=YELLOW)
+                elif game.hint_option == 1:
+                    draw_text("{0:>2}".format(str(player.hint_list[i][1])), x+35, y+32,size=30,color=YELLOW)
                 
                 #display both
                 else:
-                    draw_text(str(player.get_hint_list()[i][0]), x+7, y,size=30,color=L_GREY)
-                    draw_text("{0:>2}".format(str(player.get_hint_list()[i][1])), x+35, y+32,size=30,color=YELLOW)
+                    draw_text(str(player.hint_list[i][0]), x+7, y,size=30,color=L_GREY)
+                    draw_text("{0:>2}".format(str(player.hint_list[i][1])), x+35, y+32,size=30,color=YELLOW)
                     
             
         
-def draw_ships(player, x_offset=0, y_offset=INFO_MARGIN_HEIGHT, sunk_ship=False):
+def draw_ships(player:Player, x_offset=0, y_offset=INFO_MARGIN_HEIGHT, sunk_ship=False):
     """draw ships on the screen
 
     Args:
@@ -132,23 +130,23 @@ def draw_ships(player, x_offset=0, y_offset=INFO_MARGIN_HEIGHT, sunk_ship=False)
     """
     
     #loop through player's ships
-    for ship in player.get_ships():
+    for ship in player.ships:
         
         #skip ships that are not sunk if option is True
-        if sunk_ship and not ship.is_sunk():
+        if sunk_ship and not ship.sunk:
             continue
         
         #copmute pixel coords
-        x = ship.get_x()*TILE_SIZE+INDENT
-        y = ship.get_y()*TILE_SIZE+INDENT
+        x = ship.x*TILE_SIZE+INDENT
+        y = ship.y*TILE_SIZE+INDENT
         
         #compute width and height of the ship
-        if ship.get_orientation() == 'H':
-            width = ship.get_size()*TILE_SIZE -2*INDENT
+        if ship.orientation == 'H':
+            width = ship.size*TILE_SIZE -2*INDENT
             height = TILE_SIZE -2*INDENT
         else:
             width = TILE_SIZE -2*INDENT
-            height = TILE_SIZE*ship.get_size() -2*INDENT
+            height = TILE_SIZE*ship.size -2*INDENT
         
         #draw the ship
         rec = pygame.Rect(x+x_offset, y+y_offset, width, height)
@@ -159,7 +157,7 @@ def draw_ships(player, x_offset=0, y_offset=INFO_MARGIN_HEIGHT, sunk_ship=False)
         #display the sip on the screen
         pygame.draw.rect(SCREEN, color , rec, border_radius=50)
 
-def draw_mines(player, x_offset=0, y_offset=INFO_MARGIN_HEIGHT):
+def draw_mines(player: Player, x_offset=0, y_offset=INFO_MARGIN_HEIGHT):
     """draw mines on the screen
 
     Args:
@@ -169,11 +167,11 @@ def draw_mines(player, x_offset=0, y_offset=INFO_MARGIN_HEIGHT):
     """
     
     #loop through all player's mines
-    for mine in player.get_mines():
+    for mine in player.mines:
         
         #compute next mine pixel coords
-        x = mine.get_x()*TILE_SIZE+TILE_SIZE/2
-        y = mine.get_y()*TILE_SIZE+TILE_SIZE/2
+        x = mine.x*TILE_SIZE+TILE_SIZE/2
+        y = mine.y*TILE_SIZE+TILE_SIZE/2
         
         #draw a circle corresponding to a mine
         pygame.draw.circle(SCREEN, YELLOW, (x+x_offset,y+y_offset), TILE_SIZE//2-INDENT)
@@ -203,7 +201,7 @@ def show_single_mine(coords):
     #draw a circle corresponding to a mine
     pygame.draw.circle(SCREEN, YELLOW, (x,y), TILE_SIZE//2-INDENT)
 
-def draw_search_grid(game):
+def draw_search_grid(game:Game):
     """display current player searching grid
 
     Args:
@@ -212,13 +210,13 @@ def draw_search_grid(game):
     #display grid
     draw_grid()
     #display opponent sunk ships
-    #draw_ships(game.get_current_opponent(),sunk_ship=True)
+    #draw_ships(game.current_opponent,sunk_ship=True)
     
     #display the moves made by the current player
-    draw_shot_fired(game.get_current_player(),game)
+    draw_shot_fired(game.current_player,game)
 
 
-def draw_player_grid(game):
+def draw_player_grid(game:Game):
     """display current player own grid      
 
     Args:
@@ -227,11 +225,11 @@ def draw_player_grid(game):
     #display grid
     draw_grid()
     #display player own ships
-    draw_ships(game.get_current_player())
+    draw_ships(game.current_player)
     #display player own mines
-    draw_mines(game.get_current_player())
+    draw_mines(game.current_player)
     #display the moves made by the opponent
-    draw_shot_fired(game.get_current_opponent(),game,search=False)
+    draw_shot_fired(game.current_opponent,game,search=False)
     
 def main_loop(game:Game):
     """
@@ -239,7 +237,7 @@ def main_loop(game:Game):
     """    
     #game initialisation
     game.start_game()
-    if not game.get_random_placement():
+    if not game.random_placement:
         placement_menu(game)
     running = True
     played = False
@@ -248,7 +246,7 @@ def main_loop(game:Game):
     buttons = []
     buttons.append(Button("Search grid", 50,game.switch_grid,WIDTH/2,75,(WIDTH/4,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN, 
                           text_switch=["Your grid"],colorB=GREEN))
-    if not game.get_hint_radius():
+    if not game.hint_radius:
         buttons.append(Button("None", 50,useless,WIDTH/4,75,(0,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN,colorB=BLUE))
     else:
         buttons.append(Button("Ship", 50,game.switch_hint,WIDTH/4,75,(0,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN, 
@@ -258,7 +256,7 @@ def main_loop(game:Game):
     #main loop
     while running:
         
-        victory = game.check_game()
+        victory = game.over
         #handle user inputs
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -280,21 +278,21 @@ def main_loop(game:Game):
                     x,y,validity=get_position(location[0], location[1])
                     
                     #check if coords are valid and correspond to a specific tile
-                    if validity and game.get_grid_choice():
+                    if validity and game.show_search_grid:
                         
                         #play or not the player's move depending on whether the same move has already been played
                         played = game.next_move(x,y)
                         
                         #trigger the end of the game
-                        if not game.get_current_player().is_alive() or not game.get_current_opponent().is_alive():
-                            game.game_over()
+                        if not game.current_player.is_alive() or not game.current_opponent.is_alive():
+                            game.over = True
                             played = not played
                             
         #fill screen background                  
         SCREEN.fill(GREY)
         
         #allows you to choose between the two display modes
-        if game.get_grid_choice():
+        if game.show_search_grid:
             draw_search_grid(game)
             
         else:
@@ -305,8 +303,8 @@ def main_loop(game:Game):
             draw_text("Game Over", (1/4)*WIDTH-35, 0,size=80, color=RED)
         else:       
             #display current playe name and health points
-            draw_text(game.get_current_player().get_name(), 20, 5,size=70)
-            draw_text("{:>2d}HP".format(game.get_current_player().get_hp()[0]), WIDTH-165, 5,size=70,color=game.get_current_player().get_hp()[1])
+            draw_text(game.current_player.name, 20, 5,size=70)
+            draw_text("{:>2d}HP".format(game.current_player.hp), WIDTH-165, 5,size=70,color=game.current_player.get_hp_color())
         
         #display buttons
         buttons_draw(buttons)
@@ -334,7 +332,9 @@ def placement_menu(game:Game):
     #main loop of the function
     running = True
     while running:
-        curr=game.get_current_player()
+        
+        curr=game.current_player 
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -356,14 +356,14 @@ def placement_menu(game:Game):
                     x,y,validity=get_position(location[0], location[1])
                     
                     #check if coords are valid and correspond to a specific tile
-                    if validity and not curr.is_ready():
+                    if validity and not curr.ready:
                         
-                        if game.get_placement_type() == "Ship" and len(curr.get_ships())<game.get_ship_nb():
+                        if game.placement_type == "Ship" and len(curr.ships)<game.nb_ships:
                         
-                            s=curr.get_ships_to_be_placed()[len(curr.get_ships())]
+                            s=curr.ships_to_be_placed[len(curr.ships)]
                             curr.place_ship(s,(x,y),orient)
                             
-                        elif game.get_placement_type() == "Mine" and len(curr.get_mines())<game.get_mine_nb():
+                        elif game.placement_type == "Mine" and len(curr.mines)<game.nb_mines:
                             curr.place_mine((x,y))
                                     
         
@@ -373,30 +373,32 @@ def placement_menu(game:Game):
         #draw grid
         draw_player_grid(game)
         
+        #get mouse coords
         location = pygame.mouse.get_pos()
         x,y,validity=get_position(location[0], location[1])
         
-        if validity and not curr.is_ready():
+        if validity and not curr.ready:
             
-            if game.get_placement_type() == "Ship" and len(curr.get_ships())<game.get_ship_nb():
-                s=curr.get_ships_to_be_placed()[len(curr.get_ships())]
-                if Ship(s,(x,y),orient).check_validity(curr.get_list_tiles_ships(),curr.get_list_tiles_mines()):
+            if game.placement_type == "Ship" and len(curr.ships)<game.nb_ships:
+                s=curr.ships_to_be_placed[len(curr.ships)]
+                if Ship(s,(x,y),orient).check_validity(curr.list_tiles_ships,curr.list_tiles_mines):
+                    
                     show_single_ship(s,(x,y),orient)
                     
-            elif game.get_placement_type() == "Mine" \
-                and Mine((x,y)).check_validity(curr.get_list_tiles_mines(),curr.get_list_tiles_ships()) \
-                and len(curr.get_mines())<game.get_mine_nb():
+            elif game.placement_type == "Mine" \
+                and len(curr.mines)<game.nb_mines \
+                and Mine((x,y)).check_validity(curr.list_tiles_mines,curr.list_tiles_ships):
                     
                 show_single_mine((x,y))
         
         draw_text("Placement phase", 110, 5,size=70,color=BLUE)
         
         #display current player name
-        draw_text(curr.get_name(), 20, 5,size=70,color=GREEN)
-        if game.get_placement_type()=="Ship":
-            draw_text("{:<2} Left".format(game.get_ship_nb()-len(curr.get_ships())), 235, 800,size=70,color=BLUE)
+        draw_text(curr.name, 20, 5,size=70,color=GREEN)
+        if game.placement_type=="Ship":
+            draw_text("{:<2} Left".format(game.nb_ships-len(curr.ships)), 235, 800,size=70,color=BLUE)
         else:
-            draw_text("{:<2} Left".format(game.get_mine_nb()-len(curr.get_mines())), 235, 800,size=70,color=BLUE)
+            draw_text("{:<2} Left".format(game.nb_mines-len(curr.mines)), 235, 800,size=70,color=BLUE)
         
         #show buttons
         buttons_draw(buttons)
@@ -405,12 +407,12 @@ def placement_menu(game:Game):
         pygame.display.update()  
         mainClock.tick(FPS)
         
-        if curr.is_ready() and game.get_current_opponent().is_ready():
+        if curr.ready and game.current_opponent.ready:
             game.change_player()
             time.sleep(1)
             running=False
             
-        elif curr.is_ready():
+        elif curr.ready:
             game.change_player()
         
 
@@ -505,19 +507,19 @@ def settings_menu(game:Game):
         #show title
         
         draw_text( "Hint radius", 215, 0, size=50, color=BLUE)
-        draw_text( str(game.get_hint_radius()), 325, 65, size=80, color=BLUE)
+        draw_text( str(game.hint_radius), 325, 65, size=80, color=BLUE)
         
         draw_text( "Random placement", 120, 180, size=50, color=BLUE)       
-        if game.get_random_placement():
+        if game.random_placement:
             draw_text("On", 300,250, size=70, color=GREEN)
         else:
             draw_text("Off", 290,250, size=70, color=RED)
             
         draw_text( "Number of ships", 155, 360, size=50, color=BLUE)
-        draw_text( str(game.get_ship_nb()), 325, 430, size=80, color=BLUE)
+        draw_text( str(game.nb_ships), 325, 430, size=80, color=BLUE)
         
         draw_text( "Number of mines", 145, 540, size=50, color=BLUE)
-        draw_text( str(game.get_mine_nb()), 325, 610, size=80, color=BLUE)
+        draw_text( str(game.nb_mines), 325, 610, size=80, color=BLUE)
         
         #show buttons
         buttons_draw(buttons)

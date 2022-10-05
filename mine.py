@@ -22,27 +22,3 @@ class Mine():
         elif self.index in list_ships:
             return False
         return True
-    
-    def get_index(self):
-        """return the index of the mine
-
-        Returns:
-            int: index
-        """
-        return self.index
-    
-    def get_x(self):
-        """Return the x coord of the mine
-
-        Returns:
-            int: x coord
-        """
-        return self.x
-    
-    def get_y(self):
-        """return the y coord of the mine
-
-        Returns:
-            int: y coord
-        """
-        return self.y
