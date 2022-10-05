@@ -83,12 +83,14 @@ class PlayerAI(Player):
 
     def __init__(self,ship_sizes=[3,3,3],mine_nb=8):
 
-        super.__init__("AI",ship_sizes,mine_nb,True)
+        super().__init__("AI",ship_sizes,mine_nb,True)
         
         # Keep track of cells known to be safe or mines
         self.known_mines = set()
         self.known_ships = set()
         self.known_safes = set()
+        
+        self.ready = True
 
         # List of knowledges about the game known to be true
         self.knowledge_list = []
@@ -234,11 +236,11 @@ class PlayerAI(Player):
         second_best = self.known_safes-self.moves_made_indexes
         random_move = {x for x in range(100)}-self.moves_made_indexes-self.known_mines
         if len(best_moves) > 0:
-            return random.choice(best_moves)
-        elif len(second_best>0):
-            return random.choice(second_best)
+            return random.choice(tuple(best_moves))
+        elif len(second_best)>0:
+            return random.choice(tuple(second_best))
         else:
-            return random.choice(random_move)
+            return random.choice(tuple(random_move))
 
     def optimize_knowledge(self):
         

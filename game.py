@@ -61,10 +61,10 @@ class Game():
     def switch_placement_type(self):
         self.placement_type = "Ship" if self.placement_type=="Mine" else "Mine"
     
-    def start_game(self):
+    def start_game(self,AI=False):
         sizes = generate_ship_sizes(self.nb_ships)
         self.player1 = Player("P1",sizes,self.nb_mines,self.random_placement)
-        self.player2 = Player("P2",sizes,self.nb_mines,self.random_placement)
+        self.player2 = Player("P2",sizes,self.nb_mines,self.random_placement) if not AI else PlayerAI(sizes,self.nb_mines)
         self.current_player = self.player1
         self.current_opponent = self.player2
     
