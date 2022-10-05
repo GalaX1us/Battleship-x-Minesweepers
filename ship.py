@@ -19,7 +19,7 @@ class Ship():
         self.occupied_tiles = self.compute_occupied_tiles()
         
         #list of tiles that have been hit
-        self.hit_tiles = []
+        self.hit_tiles = set()
         
         #is the ship sunk 
         self.sunk=False
@@ -32,9 +32,9 @@ class Ship():
         """
         idx = get_index(self.x, self.y)
         if self.orientation == 'H':
-            return [idx + i for i in range(self.size)]
+            return {idx + i for i in range(self.size)}
         elif self.orientation == 'V':
-            return [idx + i*10 for i in range(self.size)]
+            return {idx + i*10 for i in range(self.size)}
         
     def check_validity(self,ship_list,mine_list):
         """Check if this ship has a valid placement
@@ -70,6 +70,6 @@ class Ship():
         Args:
             idx (int): index of the shot
         """
-        self.hit_tiles.append(idx)
+        self.hit_tiles.add(idx)
         if len(self.hit_tiles)==self.size:
             self.sunk=True

@@ -12,14 +12,14 @@ class Player():
         self.hp = self.max_hp
         #list of all the player's ships 
         self.ships_to_be_placed = ship_sizes
-        self.ships = []
+        self.ships = set()
         #list of all index of the tiles occupied by the player's ships
-        self.list_tiles_ships = []
+        self.list_tiles_ships = set()
         #list of all the player's mines
         self.mines_to_be_placed = mine_nb
-        self.mines = []
+        self.mines = set()
         #list of all index of the tiles occupied by a player's mines
-        self.list_tiles_mines = []
+        self.list_tiles_mines = set()
         #list containing all the moves made by the player
         self.moves_made = ['U' for i in range(100)]
         #list of hint for each move made by the player
@@ -43,15 +43,15 @@ class Player():
     def place_ship(self,size,coords,orient):
         ship = Ship(size,coords,orient)
         if ship.check_validity(self.list_tiles_ships,self.list_tiles_mines):
-            self.ships.append(ship)
-            self.list_tiles_ships.extend(ship.occupied_tiles)
+            self.ships.add(ship)
+            self.list_tiles_ships.update(ship.occupied_tiles)
             self.check_ready()
     
     def place_mine(self,coords):
         mine = Mine(coords)
         if mine.check_validity(self.list_tiles_mines,self.list_tiles_ships):
-            self.mines.append(mine)
-            self.list_tiles_mines.append(mine.get_index())
+            self.mines.add(mine)
+            self.list_tiles_mines.add(mine.get_index())
             self.check_ready()
             
     def auto_place_ships(self, sizes=[3,3,3]):
@@ -70,8 +70,8 @@ class Player():
                 ship = Ship(size=s)
             
             #add the newly created ship to the player's ship list
-            self.ships.append(ship)
-            self.list_tiles_ships.extend(ship.occupied_tiles)
+            self.ships.add(ship)
+            self.list_tiles_ships.update(ship.occupied_tiles)
             
     def auto_place_mines(self,nb=8):
         """Randomly places all the mines
@@ -84,8 +84,8 @@ class Player():
             while not mine.check_validity(self.list_tiles_mines,self.list_tiles_ships):
                 mine = Mine()
                 
-            self.mines.append(mine)
-            self.list_tiles_mines.append(mine.index)
+            self.mines.add(mine)
+            self.list_tiles_mines.add(mine.index)
     
     def add_hint(self,idx,value):
         """Add an hint to the hint list
