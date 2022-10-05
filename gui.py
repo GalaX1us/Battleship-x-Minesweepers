@@ -308,8 +308,7 @@ def main_loop(game:Game):
         
         #display buttons
         buttons_draw(buttons)
-        
-            
+                    
         #update screen
         pygame.display.update()
         mainClock.tick(FPS)

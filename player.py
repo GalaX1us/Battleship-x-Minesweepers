@@ -8,7 +8,7 @@ class Player():
         #player's name
         self.name = name
         #max hp value
-        self.max_hp = 3
+        self.max_hp = len(ship_sizes)
         #player's hp value 
         self.hp = self.max_hp
         #list of all the player's ships 
