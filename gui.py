@@ -78,8 +78,8 @@ def draw_moves_made(player:Player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEI
     #option that define the radius of the displayed shot
     rad = TILE_SIZE//2-INDENT if search else TILE_SIZE//5
         
-    #loop through all indexes
-    for i in range(NB_TILE**2):
+    #loop through all moves made
+    for i in player.moves_made_indexes:
         
         #compute pixel coords
         x=i%NB_TILE*TILE_SIZE+x_offset
@@ -281,7 +281,7 @@ def main_loop(game:Game):
                     if validity and game.show_search_grid:
                         
                         #play or not the player's move depending on whether the same move has already been played
-                        played = game.next_move(x,y)
+                        played = game.play(x,y)
                         
                         #trigger the end of the game
                         if not game.current_player.is_alive() or not game.current_opponent.is_alive():

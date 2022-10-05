@@ -1,4 +1,4 @@
-from AI import PLayerAI
+from AI import PlayerAI
 from player import Player
 import random
 from utils import *
@@ -115,64 +115,47 @@ class Game():
             - swap the role of the players
         """
         self.current_opponent ,self.current_player=self.current_player, self.current_opponent
+    
+    def find_neighbors(self,idx):
         
-    def compute_hint(self,idx):
+        neib = set()
+        x,y = get_coords(idx)
+        
+        for a in range(-self.hint_radius,self.hint_radius+1):
+            for b in range((abs(a)-self.hint_radius),-(abs(a)-self.hint_radius)+1):
+                if 0<=x+a<NB_TILE and 0<=y+b<NB_TILE and not(a == 0 and b == 0):
+                    neib.add(get_index(x+a,y+b))
+        
+        return neib
+                    
+    def compute_hint(self,neib):
         """This function scans the squares within a radius of 2 squares around the player's shot 
         and saves the information on the number of ships and mines in this area
 
         Args:
             idx (int):  index corresponding to the coords of the shot of the player
         """
-        x,y=get_coords(idx)
         nb_m = 0
         nb_s = 0
-        for a in range(-self.hint_radius,self.hint_radius+1):
-            for b in range((abs(a)-self.hint_radius),-(abs(a)-self.hint_radius)+1):
-                if 0<=x+a<NB_TILE and 0<=y+b<NB_TILE and get_index(x+a,y+b) in self.current_opponent.list_tiles_mines:
-                    nb_m+=1
-                elif 0<=x+a<NB_TILE and 0<=y+b<NB_TILE and get_index(x+a,y+b) in self.current_opponent.list_tiles_ships :
-                    nb_s+=1
-        self.current_player.add_hint(idx, (nb_s,nb_m))
-
-    def next_move(self,x,y):
-        """This function performs the player's move
-
-        Args:
-            x (int): horizontal coord of the move
-            y (int): vertical coord of the move
-
-        Returns:
-            bool:   return False if a move has already been made at this coords and True otherwise
-        """
-        missed=True
-        idx = 10*y+x
+        for n in neib:
+            if n in self.current_opponent.list_tiles_mines:
+                nb_m+=1
+            elif n in self.current_opponent.list_tiles_ships:
+                nb_s+=1
+                    
+        return nb_m, nb_s
+    
+    def play(self,x,y):
+        played = self.current_player.make_move(x,y,self.current_opponent)
         
-        if self.current_player.moves_made[idx]!='U':
-            return False
+        if played:
+            idx=get_index(x,y)
+            neib = self.find_neighbors(idx)
+            nb_m, nb_s = self.compute_hint(neib)
+            args = () if type(self.current_player)==PlayerAI else (idx, (nb_s,nb_m))
+            self.current_player.add_hint(*args)
         
-        if idx in self.current_opponent.list_tiles_mines:
-            self.current_player.boom()
-            self.current_player.add_move(idx, 'E')
-            missed=False
-        
-        for ship in self.current_opponent.ships:
-            if idx in ship.occupied_tiles:
-                ship.getting_shot(idx)
-                self.current_player.add_move()(idx, 'H')
-                
-                #check if the ship is sunk
-                if ship.sunk:
-                    for i in ship.occupied_tiles:
-                        self.current_player.add_move(i, 'S')
-                    self.current_opponent.boom()
-                missed=False
-                break
-        
-        if missed:
-            self.current_player.add_move(idx, 'M')
-            self.compute_hint(idx)
-        
-        return True
+        return played
         
         
         
