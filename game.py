@@ -161,7 +161,7 @@ class Game():
                 self.current_player.set_shot_fired(idx, 'H')
                 
                 #check if the ship is sunk
-                if ship.is_sunk():
+                if ship.sunk:
                     for i in ship.occupied_tiles:
                         self.current_player.set_shot_fired(i, 'S')
                     self.current_opponent.boom()
