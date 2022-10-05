@@ -1,4 +1,4 @@
-from numpy import swapaxes
+from AI import PLayerAI
 from player import Player
 import random
 from utils import *
@@ -147,29 +147,29 @@ class Game():
         missed=True
         idx = 10*y+x
         
-        if self.current_player.shot_fired[idx]!='U':
+        if self.current_player.moves_made[idx]!='U':
             return False
         
         if idx in self.current_opponent.list_tiles_mines:
             self.current_player.boom()
-            self.current_player.set_shot_fired(idx, 'E')
+            self.current_player.add_move(idx, 'E')
             missed=False
         
         for ship in self.current_opponent.ships:
             if idx in ship.occupied_tiles:
                 ship.getting_shot(idx)
-                self.current_player.set_shot_fired(idx, 'H')
+                self.current_player.add_move()(idx, 'H')
                 
                 #check if the ship is sunk
                 if ship.sunk:
                     for i in ship.occupied_tiles:
-                        self.current_player.set_shot_fired(i, 'S')
+                        self.current_player.add_move(i, 'S')
                     self.current_opponent.boom()
                 missed=False
                 break
         
         if missed:
-            self.current_player.set_shot_fired(idx, 'M')
+            self.current_player.add_move(idx, 'M')
             self.compute_hint(idx)
         
         return True

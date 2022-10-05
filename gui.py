@@ -65,7 +65,7 @@ def draw_grid(x_offset=0,y_offset=INFO_MARGIN_HEIGHT):
         square = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
         pygame.draw.rect(SCREEN, WHITE, square, width=3)
         
-def draw_shot_fired(player:Player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEIGHT,search=True):
+def draw_moves_made(player:Player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEIGHT,search=True):
     """display all the moves that a specific player have done since the begining
 
     Args:
@@ -86,7 +86,7 @@ def draw_shot_fired(player:Player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEI
         y=i//NB_TILE*TILE_SIZE+y_offset
         
         #get the move which was made on index i
-        symbol = player.shot_fired[i]
+        symbol = player.moves_made[i]
         
         #if a move was made
         if symbol != 'U':
@@ -213,7 +213,7 @@ def draw_search_grid(game:Game):
     #draw_ships(game.current_opponent,sunk_ship=True)
     
     #display the moves made by the current player
-    draw_shot_fired(game.current_player,game)
+    draw_moves_made(game.current_player,game)
 
 
 def draw_player_grid(game:Game):
@@ -229,7 +229,7 @@ def draw_player_grid(game:Game):
     #display player own mines
     draw_mines(game.current_player)
     #display the moves made by the opponent
-    draw_shot_fired(game.current_opponent,game,search=False)
+    draw_moves_made(game.current_opponent,game,search=False)
     
 def main_loop(game:Game):
     """

@@ -1,4 +1,3 @@
-from typing_extensions import Self
 from ship import *
 from mine import *
 from utils import *
@@ -22,7 +21,7 @@ class Player():
         #list of all index of the tiles occupied by a player's mines
         self.list_tiles_mines = []
         #list containing all the moves made by the player
-        self.shot_fired = ['U' for i in range(100)]
+        self.moves_made = ['U' for i in range(100)]
         #list of hint for each move made by the player
         self.hint_list = {}
         
@@ -98,14 +97,14 @@ class Player():
         self.hint_list[idx]=value        
     
     
-    def set_shot_fired(self,idx,value):
+    def add_move(self,idx,value):
         """Update the list of moves made by player 
         
         Args:
             idx (inx): index of the move
             value (char): type of the move
         """
-        self.shot_fired[idx]=value
+        self.moves_made[idx]=value
     
     def get_hp_color(self):
         """Returns player's hp and the color corresponding to this value :
