@@ -265,10 +265,10 @@ def main_loop(game:Game, AI=0):
                 quit()
             
             #allows you to leave the game by pressing space when the game is over
-            if event.type == pygame.KEYDOWN and game.over:
-                if event.type == pygame.K_SPACE and game.over:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and game.over:
                     running=False
-                    main_menu()
+                    init_game()
             
             #get mouse clik
             if event.type == pygame.MOUSEBUTTONDOWN and not game.over and not game.pause and type(game.current_player)!=PlayerAI:

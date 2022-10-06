@@ -1,80 +1,8 @@
-from socket import if_nametoindex
+import numpy as np
 from player import Player
 from ship import *
 from mine import *
 from utils import *
-
-class Knowledge():
-    """
-    A Knowledge consists of a set of board cells,
-    and a count of the number of those cells which are mines.
-    and another count of the number of those cells which are ships
-    """
-
-    def __init__(self, cells, s_count, m_count):
-        self.cells = set(cells)
-        self.mine_count = m_count
-        self.ship_count = s_count
-
-    def __eq__(self, other):
-        return self.cells == other.cells \
-            and self.mine_count == other.mine_count \
-            and self.ship_count == other.ship_count
-
-    def __str__(self):
-        return f"{self.cells} : {self.mine_count} mines and {self.ship_count} ships"       
-
-    def known_mines(self):
-        """
-        Returns the set of all cells in self.cells known to be mines.
-        """
-        if len(self.cells) == self.mine_count:
-            return self.cells
-        return None
-    
-    def known_ships(self):
-        """
-        Returns the set of all cells in self.cells known to be ships.
-        """
-        if len(self.cells) == self.ship_count:
-            return self.cells
-        return None
-
-    def known_safes(self):
-        """
-        Returns the set of all cells in self.cells known to be safe.
-        """
-        if self.mine_count == 0:
-            return self.cells
-        return None
-
-    def mark_mine(self, cell):
-        """
-        Updates internal knowledge representation given the fact that
-        a cell is known to be a mine.
-        """
-        if cell in self.cells:
-            self.cells.remove(cell)
-            self.mine_count -= 1
-    
-    def mark_ship(self, cell):
-        """
-        Updates internal knowledge representation given the fact that
-        a cell is known to be a ship.
-        """
-        if cell in self.cells:
-            self.cells.remove(cell)
-            self.ship_count -= 1
-
-    def mark_safe(self, cell):
-        """
-        Updates internal knowledge representation given the fact that
-        a cell is known to be safe.
-        """
-        if cell in self.cells:
-            self.cells.remove(cell)
-
-
 
 class PlayerAI(Player):
     """
@@ -85,139 +13,75 @@ class PlayerAI(Player):
 
         super().__init__(name,ship_sizes,mine_nb,True)
         
-        # Keep track of cells known to be safe or mines
-        self.known_mines = set()
-        self.known_ships = set()
-        self.known_safes = set()
-        
         self.ready = True
 
-        # List of knowledges about the game known to be true
-        self.knowledge_list = []
-        
-    def mark_mine(self, cell):
-        """
-        Marks a cell as a mine, and updates all knowledge
-        to mark that cell as a mine as well.
-        """
-        self.known_mines.add(cell)
-        for knowledge in self.knowledge_list:
-            knowledge.mark_mine(cell)
+        self.prob_map = np.zeros([10, 10])
+        self.shot_map = np.zeros([10, 10])
     
-    def mark_ship(self, cell):
-        """
-        Marks a cell as safe, and updates all knowledge
-        to mark that cell as safe as well.
-        """
-        self.known_ships.add(cell)
-        for knowledge in self.knowledge_list:
-            knowledge.mark_ship(cell)
-
-    def mark_safe(self, cell):
-        """
-        Marks a cell as safe, and updates all knowledge
-        to mark that cell as safe as well.
-        """
-        self.known_safes.add(cell)
-        for knowledge in self.knowledge_list:
-            knowledge.mark_safe(cell)
-
-    def add_knowledge(self,neighbors,ship_count,mine_count):
-        """
-        Called when the Minesweeper board tells us, for a given
-        safe cell, how many neighboring cells have mines in them.
-        """
+    def gen_prob_map(self):
         
-        new_knowledge_cells = []
-        s_count = ship_count
-        m_count = mine_count
-
-        for n in neighbors:
-            if n in self.known_mines:
-                m_count-=1
-                continue
-            elif n in self.known_ships:
-                s_count-=1
-                continue
-            
-            if n not in self.moves_made_indexes and n not in self.known_safes:
-                new_knowledge_cells.append(n)
-
-        new_knowledge = Knowledge(new_knowledge_cells, s_count,m_count)
-        self.knowledge_list.append(new_knowledge)
-
-        new_inferences = []
-        for s in self.knowledge_list:
-            if s == new_knowledge:
-                continue
-            elif s.cells.issuperset(new_knowledge.cells):
-                setDiff = s.cells-new_knowledge.cells
-                # Known safes
-                if s.mine_count == new_knowledge.mine_count:
-                    for safe in setDiff:
-                        self.mark_safe(safe)
-                # Known mines
-                elif len(setDiff) == s.mine_count - new_knowledge.mine_count:
-                    for mine in setDiff:
-                        self.mark_mine(mine)
-                
-                elif len(setDiff) == s.ship_count - new_knowledge.ship_count:
-                    for ship in setDiff:
-                        self.mark_ship(ship)
-                # Known inference
-                elif len(setDiff)>0:
-                    new_inferences.append(Knowledge(setDiff, s.ship_count - new_knowledge.ship_count,s.mine_count - new_knowledge.mine_count))
-                    
-            elif new_knowledge.cells.issuperset(s.cells):
-                setDiff = new_knowledge.cells-s.cells
-                # Known safes
-                if s.mine_count == new_knowledge.mine_count:
-                    for safeFound in setDiff:
-                        self.mark_safe(safeFound)
-                # Known mines
-                elif len(setDiff) == new_knowledge.mine_count - s.mine_count:
-                    for mine in setDiff:
-                        self.mark_mine(mine)
-                
-                elif len(setDiff) == new_knowledge.ship_count - s.ship_count:
-                    for ship in setDiff:
-                        self.mark_ship(ship)
-                # Known inference
-                elif len(setDiff)>0:
-                    new_inferences.append(Knowledge(setDiff, new_knowledge.ship_count - s.ship_count,new_knowledge.mine_count - s.mine_count))
-
-        self.knowledge_list.extend(new_inferences)
+        prob_map = np.zeros([10, 10])
         
-        opt=self.optimize_knowledge()
-        while opt!=self.knowledge_list:
-            opt=self.optimize_knowledge()
-            
-    def add_move(self, idx, value):
-        super().add_move(idx, value)
-        if value == 'E':
-            self.mark_mine(idx)
-        elif value == 'S' or value == 'H':
-            self.mark_ship(idx)
-        else:
-            self.mark_safe(idx)
-    
-    def add_hint(self, idx,neib,nb_s,nb_m):
-        super().add_hint(idx, nb_s, nb_m)
-        self.add_knowledge(neib,nb_s,nb_m)
+        for ship_s in self.ships_to_be_placed:
+            use_size = ship_s - 1
+            # check where a ship will fit on the board
+            for y in range(NB_TILE):
+                for x in range(NB_TILE):
+                    if self.moves_made[get_index(x,y)] == 'U':
+                        # get potential ship endpoints
+                        endpoints = []
+                        # add 1 to all endpoints to compensate for python indexing
+                        if y - use_size >= 0:
+                            endpoints.append(((y - use_size, x), (y + 1, x + 1)))
+                        if y + use_size <= 9:
+                            endpoints.append(((y, x), (y + use_size + 1, x + 1)))
+                        if x - use_size >= 0:
+                            endpoints.append(((y, x - use_size), (y + 1, x + 1)))
+                        if x + use_size <= 9:
+                            endpoints.append(((y, x), (y + 1, x + use_size + 1)))
+
+                        for (start_y, start_x), (end_y, end_x) in endpoints:
+                            if np.all(self.shot_map[start_y:end_y, start_x:end_x] == 0):
+                                prob_map[start_y:end_y, start_x:end_x] += 1
+
+                    # increase probability of attacking squares near successful hits
+                    if self.moves_made[get_index(x,y)]=='H':  # un-weight hits on sunk ships
+
+                        if (y + 1 <= 9) and (self.shot_map[y + 1][x] == 0):
+                            if (y - 1 >= 0) and self.moves_made[get_index(x,y-1)]=='H':
+                                prob_map[y + 1][x] += 15
+                            else:
+                                prob_map[y + 1][x] += 10
+
+                        if (y - 1 >= 0) and (self.shot_map[y - 1][x] == 0):
+                            if (y + 1 <= 9) and self.moves_made[get_index(x,y+1)]=='H':
+                                prob_map[y - 1][x] += 15
+                            else:
+                                prob_map[y - 1][x] += 10
+
+                        if (x + 1 <= 9) and (self.shot_map[y][x + 1] == 0):
+                            if (x - 1 >= 0) and self.moves_made[get_index(x-1,y)]=='H':
+                                prob_map[y][x + 1] += 15
+                            else:
+                                prob_map[y][x + 1] += 10
+
+                        if (x - 1 >= 0) and (self.shot_map[y][x - 1] == 0):
+                            if (x + 1 <= 9) and self.moves_made[get_index(x+1,y)]=='H':
+                                prob_map[y][x - 1] += 15
+                            else:
+                                prob_map[y][x - 1] += 10
+
+                    # decrease probability for misses to zero
+                    elif self.moves_made[get_index(x,y)]=='M' or self.moves_made[get_index(x,y)]=='E':
+                        prob_map[y][x] = 0
+
+        self.prob_map = prob_map
         
-    def show_knowledge(self):
-        print("============================")
-        print(self.name+"\n")
-        print("Known safe : ",self.known_safes)
-        print("Known mine : ",self.known_mines)
-        print("Known ship : ",self.known_ships)
-        for k in self.knowledge_list:
-            print(k)
-            
     def make_move(self, opponent:Player):
         
         missed=True
-        idx = self.find_good_move()
+        x,y = self.find_good_move()
+        idx = get_index(x,y)
         
         
         if idx in opponent.list_tiles_mines:
@@ -242,46 +106,16 @@ class PlayerAI(Player):
             self.add_move(idx, 'M')
         
         self.has_played=True
+        self.shot_map[y][x]=1
         
         return idx
 
     def find_good_move(self):
         
-        best_moves = self.known_ships-self.moves_made_indexes
-        second_best = self.known_safes-self.moves_made_indexes
-        random_move = {x for x in range(100)}-self.moves_made_indexes-self.known_mines
-        if len(best_moves) > 0:
-            return random.choice(tuple(best_moves))
-        elif len(second_best)>0:
-            return random.choice(tuple(second_best))
-        else:
-            return random.choice(tuple(random_move))
-
-    def optimize_knowledge(self):
+        self.gen_prob_map()
         
-        knowledge_optimized = []
-
-        for knowledge in self.knowledge_list:
-            k_safes = knowledge.known_safes()
-            k_mines = knowledge.known_mines()
-            k_ships = knowledge.known_ships()
-            
-            if k_safes:
-                self.knowledge_list.remove(knowledge)
-                for safe in k_safes:
-                    self.mark_safe(safe)
-
-            elif k_ships:
-                self.knowledge_list.remove(knowledge)
-                for ship in k_ships.union(self.known_ships):
-                    self.mark_ship(ship)
-            
-            elif k_mines:
-                self.knowledge_list.remove(knowledge)
-                for mine in k_mines.union(self.known_mines):
-                    self.mark_mine(mine)
-            
-            elif knowledge not in knowledge_optimized and len(knowledge.cells)>0:
-                knowledge_optimized.append(knowledge)
+        max_indices = np.where(self.prob_map == np.amax(self.prob_map))
+        guess_y, guess_x = max_indices[0][0], max_indices[1][0]
         
-        return knowledge_optimized
+        return guess_x, guess_y
+        
