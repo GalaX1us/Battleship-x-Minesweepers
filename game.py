@@ -27,7 +27,8 @@ def generate_ship_sizes(nb):
 
 class Game():
     def __init__(self):
-        """Create a new game instance, a game instance handles players rounds and players moves
+        """
+        Create a new game instance, a game instance handles players rounds and players moves
         """
         
         self.nb_ships = 3
@@ -43,8 +44,6 @@ class Game():
         #is the game over yet
         self.over = False
         
-        #Show search grid (True).
-        #Show player own grid (False)
         #Search grid is the hidden opponent grid with your shot displayed
         #Player's own grid is he's own grid with opponent's shot displayed 
         self.show_search_grid = True
@@ -61,14 +60,23 @@ class Game():
         self.pause = False
 
     def switch_placement_type(self):
+        """
+        Function used to swap placement type
+        """
         self.placement_type = "Ship" if self.placement_type=="Mine" else "Mine"
     
-    def start_game(self,AI=0):
+    def init_players(self,AI_nb=0):
+        """
+        initializes the players according to the number of AI
+
+        Args:
+            AI (int, optional): number of AI in the game (0,1 or 2). Defaults to 0.
+        """
         sizes = generate_ship_sizes(self.nb_ships)
-        if AI==0:
+        if AI_nb==0:
             self.player1 = Player("P1",sizes,self.nb_mines,self.random_placement)
             self.player2 = Player("P2",sizes,self.nb_mines,self.random_placement)
-        elif AI == 1:
+        elif AI_nb == 1:
             self.player1 = Player("P1",sizes,self.nb_mines,self.random_placement)
             self.player2 = PlayerAI("AI",sizes,self.nb_mines)
         else:
@@ -79,6 +87,12 @@ class Game():
         self.current_opponent = self.player2
     
     def change_ship_nb(self,val):
+        """
+        Update the number of ship in the game
+
+        Args:
+            val (int): increment value
+        """
         self.nb_ships+=val
         if self.nb_ships > MAX_SHIP_NB:
             self.nb_ships=MAX_SHIP_NB
@@ -86,6 +100,12 @@ class Game():
             self.nb_ships=MIN_SHIP_NB
     
     def change_mine_nb(self,val):
+        """
+        Update the number of mine in the game
+
+        Args:
+            val (int): increment value
+        """
         self.nb_mines+=val
         if self.nb_mines > MAX_MINE_NB:
             self.nb_mines=MAX_MINE_NB
@@ -93,9 +113,18 @@ class Game():
             self.nb_mines=MIN_MINE_NB
 
     def switch_random_placement(self):
+        """
+        Swap random placement method (True/False)
+        """
         self.random_placement = not self.random_placement
     
     def change_hint_radius(self,val):
+        """
+        Update the radius of the hint in the game
+
+        Args:
+            val (int): increment value
+        """
         self.hint_radius+=val
         if self.hint_radius > MAX_HINT_RADIUS:
             self.hint_radius=MAX_HINT_RADIUS
@@ -121,13 +150,22 @@ class Game():
         self.hint_option=(self.hint_option+1)%4
     
     def change_player(self):
-        """Update game properties for the next round :
+        """
+        Update game properties for the next round :
             - swap the role of the players
         """
         self.current_opponent ,self.current_player=self.current_player, self.current_opponent
     
     def find_neighbors(self,idx):
-        
+        """
+        Find all the neighbors of a specific tile
+
+        Args:
+            idx (idx): indexes whose neighbors must be found
+
+        Returns:
+            list(int): list of all neighbors
+        """
         neib = set()
         x,y = get_coords(idx)
         
@@ -156,7 +194,13 @@ class Game():
         return nb_m, nb_s
     
     def play(self,x=0,y=0):
-        
+        """
+        makes the player play and computes the hints
+
+        Args:
+            x (int, optional): horizontal coord. Defaults to 0.
+            y (int, optional): vertical coord. Defaults to 0.
+        """
         
         if type(self.current_player)==PlayerAI:
             index = self.current_player.make_move(self.current_opponent)
@@ -171,6 +215,9 @@ class Game():
             self.current_player.add_hint(idx, nb_s, nb_m)
             
     def next_round(self):
+        """
+        Launch the next round
+        """
         self.current_player.has_played=False
         self.change_player()
         self.pause = False

@@ -238,7 +238,7 @@ def main_loop(game:Game, AI=0):
         Main loop of the game, display the game grid
     """    
     #game initialisation
-    game.start_game(AI)
+    game.init_players(AI)
     if not game.random_placement and AI!=2:
         placement_menu(game)
     running = True

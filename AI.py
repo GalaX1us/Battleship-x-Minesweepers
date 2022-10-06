@@ -6,7 +6,7 @@ from utils import *
 
 class PlayerAI(Player):
     """
-    Minesweeper game player
+    Self playing AI
     """
 
     def __init__(self,name,ship_sizes=[3,3,3],mine_nb=8):
@@ -20,7 +20,7 @@ class PlayerAI(Player):
     
     def gen_prob_map(self):
         """
-           Generates the grid with for each cell its probability to contain a ship
+           Generates the grid with, for each cell, its probability to contain a ship
         """
         
         #create a 10 x 10 matrix with only zeros
@@ -124,6 +124,11 @@ class PlayerAI(Player):
         return idx
 
     def find_good_move(self):
+        """Find the best move that can be done based on the matric of probability
+
+        Returns:
+            tuple(int,int): coords of the best move
+        """
         
         self.gen_prob_map()
         
