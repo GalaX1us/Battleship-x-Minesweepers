@@ -229,6 +229,14 @@ class Game():
         self.rounds+=1
         self.pause = False
         
+    def place_flag(self,x,y):
+        idx = get_index(x,y)
+        curr = self.current_player
+        if curr.moves_made[idx] is Move.UNKNOWN:
+            curr.moves_made[idx]=Move.FLAG
+        elif curr.moves_made[idx] is Move.FLAG:
+            curr.moves_made[idx]=Move.UNKNOWN
+        
         
         
         

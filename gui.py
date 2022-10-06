@@ -17,6 +17,7 @@ pygame.display.set_caption("Bataille Navale X Démineur")
 SCREEN = pygame.display.set_mode((WIDTH,HEIGHT))
 mainClock = pygame.time.Clock()
 logo = pygame.transform.scale(pygame.image.load("assets/images/logo.png"), ((WIDTH/2,WIDTH/2)))
+flag = pygame.transform.scale(pygame.image.load("assets/images/flag.png"), ((TILE_SIZE,TILE_SIZE)))
 
 def init_game():
     game = Game()
@@ -67,7 +68,8 @@ def draw_grid(x_offset=0,y_offset=INFO_MARGIN_HEIGHT):
         pygame.draw.rect(SCREEN, WHITE, square, width=3)
         
 def draw_moves_made(player:Player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEIGHT,search=True):
-    """display all the moves that a specific player have done since the begining
+    """
+    display all the moves that a specific player have done since the begining
 
     Args:
         player (Player): player whose moves are to be displayed
@@ -80,43 +82,45 @@ def draw_moves_made(player:Player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEI
     rad = TILE_SIZE//2-INDENT if search else TILE_SIZE//5
         
     #loop through all moves made
-    for i in player.moves_made_indexes:
-        
-        #compute pixel coords
-        x=i%NB_TILE*TILE_SIZE+x_offset
-        y=i//NB_TILE*TILE_SIZE+y_offset
-        
+    for i in range(NB_TILE**2):
+               
         #get the move which was made on index i
-        symbol = player.moves_made[i]
+        mv = player.moves_made[i]
         
         #if a move was made
-        if symbol != 'U':
+        if mv is not Move.UNKNOWN:
+            
+            #compute pixel coords
+            x=i%NB_TILE*TILE_SIZE+x_offset
+            y=i//NB_TILE*TILE_SIZE+y_offset
             
             #if the move was a mine explosion
-            if symbol == 'E':
+            if mv is Move.EXPLOSION:
                 #display an inactive mine
-                pygame.draw.circle(SCREEN, MOVE_COLOR[symbol][0], (x+TILE_SIZE//2,y+TILE_SIZE//2), rad)
-                draw_text('X', x+18, y+8,size=45,color=MOVE_COLOR[symbol][1])
+                pygame.draw.circle(SCREEN, MOVE_COLOR[mv][0], (x+TILE_SIZE//2,y+TILE_SIZE//2), rad)
+                draw_text('X', x+18, y+8,size=45,color=MOVE_COLOR[mv][1])
+            elif mv is Move.FLAG:
+                SCREEN.blit(flag, (x,y))
             else:
                 
                 #display a circle with a color corresponding to a certain type of move 
-                pygame.draw.circle(SCREEN, MOVE_COLOR[symbol], (x+TILE_SIZE//2,y+TILE_SIZE//2), rad)
+                pygame.draw.circle(SCREEN, MOVE_COLOR[mv], (x+TILE_SIZE//2,y+TILE_SIZE//2), rad)
             
-            #if the move was a miss, display the infos of the surrounding tiles (radius 2)
-            if symbol == 'M' and game.show_search_grid and game.hint_option<=2 and game.hint_radius:
-                
-                #display only ships hints
-                if game.hint_option == 0:
-                    draw_text(str(player.hint_list[i][0]), x+7, y,size=30,color=L_GREY)
-                
-                #display only mines hints
-                elif game.hint_option == 1:
-                    draw_text("{0:>2}".format(str(player.hint_list[i][1])), x+35, y+32,size=30,color=YELLOW)
-                
-                #display both
-                else:
-                    draw_text(str(player.hint_list[i][0]), x+7, y,size=30,color=L_GREY)
-                    draw_text("{0:>2}".format(str(player.hint_list[i][1])), x+35, y+32,size=30,color=YELLOW)
+                #if the move was a miss, display the infos of the surrounding tiles (radius 2)
+                if mv is Move.MISS and game.show_search_grid and game.hint_option<=2 and game.hint_radius:
+                    
+                    #display only ships hints
+                    if game.hint_option == 0:
+                        draw_text(str(player.hint_list[i][0]), x+7, y,size=30,color=L_GREY)
+                    
+                    #display only mines hints
+                    elif game.hint_option == 1:
+                        draw_text("{0:>2}".format(str(player.hint_list[i][1])), x+35, y+32,size=30,color=YELLOW)
+                    
+                    #display both
+                    else:
+                        draw_text(str(player.hint_list[i][0]), x+7, y,size=30,color=L_GREY)
+                        draw_text("{0:>2}".format(str(player.hint_list[i][1])), x+35, y+32,size=30,color=YELLOW)
                     
             
         
@@ -272,17 +276,20 @@ def main_loop(game:Game, AI=0):
             
             #get mouse clik
             if event.type == pygame.MOUSEBUTTONDOWN and not game.over and not game.pause and type(game.current_player)!=PlayerAI:
-                if pygame.mouse.get_pressed()[0]:
+                
+                #get mouse coords
+                location = pygame.mouse.get_pos()
+                x,y,validity=get_position(location[0], location[1])
+                
+                #check if coords are valid and correspond to a specific tile
+                if validity and game.show_search_grid :
+                    if pygame.mouse.get_pressed()[0]:
                     
-                    #get mouse coords
-                    location = pygame.mouse.get_pos()
-                    x,y,validity=get_position(location[0], location[1])
-                    
-                    #check if coords are valid and correspond to a specific tile
-                    if validity and game.show_search_grid :
-                        
                         #play or not the player's move depending on whether the same move has already been played
                         game.play(x,y)
+                
+                    if pygame.mouse.get_pressed()[2]:
+                        game.place_flag(x,y)
            
         if type(game.current_player)==PlayerAI and not game.over and not game.pause:
             game.play()   

@@ -31,7 +31,7 @@ class PlayerAI(Player):
             # check where a ship will fit on the board
             for y in range(NB_TILE):
                 for x in range(NB_TILE):
-                    if self.moves_made[get_index(x,y)] == 'U':
+                    if self.moves_made[get_index(x,y)] is Move.UNKNOWN:
                         # get potential ship endpoints
                         endpoints = []
                         
@@ -50,34 +50,34 @@ class PlayerAI(Player):
                                 prob_map[start_y:end_y, start_x:end_x] += 1
 
                     # increase probability of attacking tiles near successful hits
-                    if self.moves_made[get_index(x,y)]=='H':
+                    if self.moves_made[get_index(x,y)] is Move.HIT:
 
                         if (y + 1 <= 9) and (self.shot_map[y + 1][x] == 0):
-                            if (y - 1 >= 0) and self.moves_made[get_index(x,y-1)]=='H':
+                            if (y - 1 >= 0) and self.moves_made[get_index(x,y-1)] is Move.HIT:
                                 prob_map[y + 1][x] += 15
                             else:
                                 prob_map[y + 1][x] += 10
 
                         if (y - 1 >= 0) and (self.shot_map[y - 1][x] == 0):
-                            if (y + 1 <= 9) and self.moves_made[get_index(x,y+1)]=='H':
+                            if (y + 1 <= 9) and self.moves_made[get_index(x,y+1)] is Move.HIT:
                                 prob_map[y - 1][x] += 15
                             else:
                                 prob_map[y - 1][x] += 10
 
                         if (x + 1 <= 9) and (self.shot_map[y][x + 1] == 0):
-                            if (x - 1 >= 0) and self.moves_made[get_index(x-1,y)]=='H':
+                            if (x - 1 >= 0) and self.moves_made[get_index(x-1,y)] is Move.HIT:
                                 prob_map[y][x + 1] += 15
                             else:
                                 prob_map[y][x + 1] += 10
 
                         if (x - 1 >= 0) and (self.shot_map[y][x - 1] == 0):
-                            if (x + 1 <= 9) and self.moves_made[get_index(x+1,y)]=='H':
+                            if (x + 1 <= 9) and self.moves_made[get_index(x+1,y)] is Move.HIT:
                                 prob_map[y][x - 1] += 15
                             else:
                                 prob_map[y][x - 1] += 10
 
                     # decrease probability for misses to zero
-                    elif self.moves_made[get_index(x,y)]=='M' or self.moves_made[get_index(x,y)]=='E':
+                    elif self.moves_made[get_index(x,y)] is Move.MISS or self.moves_made[get_index(x,y)] is Move.EXPLOSION:
                         prob_map[y][x] = 0
 
         self.prob_map = prob_map
@@ -99,24 +99,24 @@ class PlayerAI(Player):
         
         if idx in opponent.list_tiles_mines:
             self.boom()
-            self.add_move(idx, 'E')
+            self.add_move(idx, Move.EXPLOSION)
             missed=False
         
         for ship in opponent.ships:
             if idx in ship.occupied_tiles:
                 ship.getting_shot(idx)
-                self.add_move(idx, 'H')
+                self.add_move(idx, Move.HIT)
                 
                 #check if the ship is sunk
                 if ship.sunk:
                     for i in ship.occupied_tiles:
-                        self.add_move(i, 'S')
+                        self.add_move(i, Move.SUNK)
                     opponent.boom()
                 missed=False
                 break
         
         if missed:
-            self.add_move(idx, 'M')
+            self.add_move(idx, Move.MISS)
         
         self.has_played=True
         self.shot_map[y][x]=1

@@ -18,7 +18,7 @@ class Player():
         self.list_tiles_mines = set()
         
         #list containing all the moves made by the player
-        self.moves_made = ['U' for i in range(100)]
+        self.moves_made = [Move.UNKNOWN for i in range(100)]
         self.moves_made_indexes = set()
         
         #list of hint for each move made by the player
@@ -157,29 +157,29 @@ class Player():
         missed=True
         idx = 10*y+x
         
-        if self.moves_made[idx]!='U':
+        if self.moves_made[idx] is not Move.UNKNOWN:
             return
         
         if idx in opponent.list_tiles_mines:
             self.boom()
-            self.add_move(idx, 'E')
+            self.add_move(idx, Move.EXPLOSION)
             missed=False
         
         for ship in opponent.ships:
             if idx in ship.occupied_tiles:
                 ship.getting_shot(idx)
-                self.add_move(idx, 'H')
+                self.add_move(idx, Move.HIT)
                 
                 #check if the ship is sunk
                 if ship.sunk:
                     for i in ship.occupied_tiles:
-                        self.add_move(i, 'S')
+                        self.add_move(i, Move.SUNK)
                     opponent.boom()
                 missed=False
                 break
         
         if missed:
-            self.add_move(idx, 'M')
+            self.add_move(idx, Move.MISS)
             
         self.has_played=True
     
