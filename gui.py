@@ -8,7 +8,8 @@ from game import Game
 import time
 from button import Button
 from utils import *
-
+from AI import PlayerAI
+from threading import Timer
 
 #initialize key components of the game
 pygame.init()
@@ -231,16 +232,17 @@ def draw_player_grid(game:Game):
     #display the moves made by the opponent
     draw_moves_made(game.current_opponent,game,search=False)
     
-def main_loop(game:Game):
+    
+def main_loop(game:Game, AI=0):
     """
         Main loop of the game, display the game grid
     """    
     #game initialisation
-    game.start_game()
-    if not game.random_placement:
+    game.start_game(AI)
+    if not game.random_placement and AI!=2:
         placement_menu(game)
     running = True
-    played = False
+    waiting = False
     
     #buttons creation
     buttons = []
@@ -256,7 +258,6 @@ def main_loop(game:Game):
     #main loop
     while running:
         
-        victory = game.over
         #handle user inputs
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -264,13 +265,13 @@ def main_loop(game:Game):
                 quit()
             
             #allows you to leave the game by pressing space when the game is over
-            if event.type == pygame.KEYDOWN and victory:
-                if event.type == pygame.K_SPACE and victory:
+            if event.type == pygame.KEYDOWN and game.over:
+                if event.type == pygame.K_SPACE and game.over:
                     running=False
                     main_menu()
             
             #get mouse clik
-            if event.type == pygame.MOUSEBUTTONDOWN and not victory:
+            if event.type == pygame.MOUSEBUTTONDOWN and not game.over and not game.pause and type(game.current_player)!=PlayerAI:
                 if pygame.mouse.get_pressed()[0]:
                     
                     #get mouse coords
@@ -278,16 +279,18 @@ def main_loop(game:Game):
                     x,y,validity=get_position(location[0], location[1])
                     
                     #check if coords are valid and correspond to a specific tile
-                    if validity and game.show_search_grid:
+                    if validity and game.show_search_grid :
                         
                         #play or not the player's move depending on whether the same move has already been played
-                        played = game.play(x,y)
+                        game.play(x,y)
+           
+        if type(game.current_player)==PlayerAI and not game.over and not game.pause:
+            game.play()   
                         
-                        #trigger the end of the game
-                        if not game.current_player.is_alive() or not game.current_opponent.is_alive():
-                            game.over = True
-                            played = not played
-                            
+        #trigger the end of the game
+        if not game.current_player.is_alive() or not game.current_opponent.is_alive():
+            game.over = True
+            
         #fill screen background                  
         SCREEN.fill(GREY)
         
@@ -298,7 +301,7 @@ def main_loop(game:Game):
         else:
             draw_player_grid(game)
             
-        if victory:
+        if game.over:
             #display a game over message
             draw_text("Game Over", (1/4)*WIDTH-35, 0,size=80, color=RED)
         else:       
@@ -314,10 +317,11 @@ def main_loop(game:Game):
         mainClock.tick(FPS)
         
         #moves on to the next round
-        if played:
-            time.sleep(1)
-            game.change_player()
-            played=False
+        if game.current_player.has_played and not game.over and not game.pause:
+            game.pause=True
+            t = Timer(1.0, game.next_round)
+            t.start()
+            
 
 def placement_menu(game:Game):
     #buttons creation
@@ -332,7 +336,7 @@ def placement_menu(game:Game):
     running = True
     while running:
         
-        curr=game.current_player 
+        curr=game.current_player
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -408,7 +412,7 @@ def placement_menu(game:Game):
         
         if curr.ready and game.current_opponent.ready:
             game.change_player()
-            time.sleep(1)
+            time.sleep(2)
             running=False
             
         elif curr.ready:
@@ -536,11 +540,12 @@ def main_menu(game:Game):
     """
     #creation of the buttons
     buttons = []
-    buttons.append(Button('Human Vs Human', 50,main_loop,500,80,(100,450),SCREEN,event_args=(game,))) 
-    buttons.append(Button('Human Vs AI', 50,comming_soon,500,80,(100,550),SCREEN,text_switch=["Work in progress"])) 
-    buttons.append(Button('Settings', 50,settings_menu,500,80,(100,650),SCREEN,event_args=(game,))) 
-    buttons.append(Button('Help', 50,help_menu,245,80,(100,750),SCREEN,event_args=(game,))) 
-    buttons.append(Button('Exit', 50,exit,245,80,(355,750),SCREEN)) 
+    buttons.append(Button('Player Vs Player', 50,main_loop,500,80,(100,450),SCREEN,event_args=(game,))) 
+    buttons.append(Button('Player Vs AI', 50,main_loop,500,80,(100,550),SCREEN,event_args=(game,1)))
+    buttons.append(Button('AI Vs AI', 50,main_loop,500,80,(100,650),SCREEN,event_args=(game,2))) 
+    buttons.append(Button('Settings', 50,settings_menu,245,80,(228,750),SCREEN,event_args=(game,))) 
+    buttons.append(Button('Help', 50,help_menu,120,80,(100,750),SCREEN,event_args=(game,))) 
+    buttons.append(Button('Exit', 50,exit,120,80,(480,750),SCREEN)) 
     
     #main loop of the gfunction
     running = True

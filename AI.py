@@ -22,7 +22,7 @@ class Knowledge():
             and self.ship_count == other.ship_count
 
     def __str__(self):
-        return f"{self.cel} : {self.mine_count} mines and {self.ship_count}"       
+        return f"{self.cells} : {self.mine_count} mines and {self.ship_count} ships"       
 
     def known_mines(self):
         """
@@ -44,7 +44,7 @@ class Knowledge():
         """
         Returns the set of all cells in self.cells known to be safe.
         """
-        if self.mine_count == 0 and self.ship_count==0:
+        if self.mine_count == 0:
             return self.cells
         return None
 
@@ -81,9 +81,9 @@ class PlayerAI(Player):
     Minesweeper game player
     """
 
-    def __init__(self,ship_sizes=[3,3,3],mine_nb=8):
+    def __init__(self,name,ship_sizes=[3,3,3],mine_nb=8):
 
-        super().__init__("AI",ship_sizes,mine_nb,True)
+        super().__init__(name,ship_sizes,mine_nb,True)
         
         # Keep track of cells known to be safe or mines
         self.known_mines = set()
@@ -165,7 +165,7 @@ class PlayerAI(Player):
                     for ship in setDiff:
                         self.mark_ship(ship)
                 # Known inference
-                else:
+                elif len(setDiff)>0:
                     new_inferences.append(Knowledge(setDiff, s.ship_count - new_knowledge.ship_count,s.mine_count - new_knowledge.mine_count))
                     
             elif new_knowledge.cells.issuperset(s.cells):
@@ -183,17 +183,20 @@ class PlayerAI(Player):
                     for ship in setDiff:
                         self.mark_ship(ship)
                 # Known inference
-                else:
+                elif len(setDiff)>0:
                     new_inferences.append(Knowledge(setDiff, new_knowledge.ship_count - s.ship_count,new_knowledge.mine_count - s.mine_count))
 
         self.knowledge_list.extend(new_inferences)
-        self.optimize_knowledge()
-    
+        
+        opt=self.optimize_knowledge()
+        while opt!=self.knowledge_list:
+            opt=self.optimize_knowledge()
+            
     def add_move(self, idx, value):
         super().add_move(idx, value)
         if value == 'E':
             self.mark_mine(idx)
-        elif value == 'S':
+        elif value == 'S' or value == 'H':
             self.mark_ship(idx)
         else:
             self.mark_safe(idx)
@@ -201,11 +204,21 @@ class PlayerAI(Player):
     def add_hint(self, idx,neib,nb_s,nb_m):
         super().add_hint(idx, nb_s, nb_m)
         self.add_knowledge(neib,nb_s,nb_m)
-
+        
+    def show_knowledge(self):
+        print("============================")
+        print(self.name+"\n")
+        print("Known safe : ",self.known_safes)
+        print("Known mine : ",self.known_mines)
+        print("Known ship : ",self.known_ships)
+        for k in self.knowledge_list:
+            print(k)
+            
     def make_move(self, opponent:Player):
         
         missed=True
         idx = self.find_good_move()
+        
         
         if idx in opponent.list_tiles_mines:
             self.boom()
@@ -227,7 +240,9 @@ class PlayerAI(Player):
         
         if missed:
             self.add_move(idx, 'M')
-            
+        
+        self.has_played=True
+        
         return idx
 
     def find_good_move(self):
@@ -266,7 +281,7 @@ class PlayerAI(Player):
                 for mine in k_mines.union(self.known_mines):
                     self.mark_mine(mine)
             
-            elif knowledge not in knowledge_optimized:
+            elif knowledge not in knowledge_optimized and len(knowledge.cells)>0:
                 knowledge_optimized.append(knowledge)
         
-        self.knowledge_list = knowledge_optimized
+        return knowledge_optimized

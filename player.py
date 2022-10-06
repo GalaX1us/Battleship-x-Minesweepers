@@ -29,6 +29,8 @@ class Player():
         
         self.ready = False
         
+        self.has_played = False
+        
         
         if r_placement:
             #automatic placement of all ships
@@ -122,7 +124,7 @@ class Player():
         """Says if the player is still alive
         
         Returns:
-            bool: True if player's hp < 0
+            bool: True if player's hp > 0
         """
         return self.hp>0
     
@@ -145,7 +147,7 @@ class Player():
         idx = 10*y+x
         
         if self.moves_made[idx]!='U':
-            return False
+            return
         
         if idx in opponent.list_tiles_mines:
             self.boom()
@@ -168,5 +170,5 @@ class Player():
         if missed:
             self.add_move(idx, 'M')
             
-        return True
+        self.has_played=True
     
