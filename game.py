@@ -214,7 +214,7 @@ class Game():
             idx = index if type(self.current_player)==PlayerAI else get_index(x,y)
             neib = self.find_neighbors(idx)
             nb_m, nb_s = self.compute_hint(neib)
-            self.current_player.add_hint(idx, nb_s, nb_m)
+            self.current_player.add_hint(idx, nb_s, nb_m, neib)
             
             #trigger the end of the game
             if not self.current_player.is_alive() or not self.current_opponent.is_alive():

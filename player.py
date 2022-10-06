@@ -103,8 +103,8 @@ class Player():
             self.mines.add(mine)
             self.list_tiles_mines.add(mine.index)      
     
-    def add_hint(self,idx,nb_s,nb_m):
-        self.hint_list[idx]=(nb_s,nb_m)
+    def add_hint(self,idx,nb_s,nb_m, neib):
+        self.hint_list[idx]=(nb_s,nb_m, neib)
     
     def add_move(self,idx,value):
         """Update the list of moves made by player 

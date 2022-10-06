@@ -3,8 +3,8 @@ from AI import PlayerAI
 import time
 
 NB_GAME = 100
-NB_MINE=8
-SHIP_SIZES=[3,3,3]
+NB_MINE=0
+SHIP_SIZES=[5,4,3,2]
 
 game_rounds_list = []
 

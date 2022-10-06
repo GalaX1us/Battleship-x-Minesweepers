@@ -35,20 +35,28 @@ class PlayerAI(Player):
                         # get potential ship endpoints
                         endpoints = []
                         
-                        # add 1 to all endpoints to compensate for python indexing
                         if y - use_size >= 0:
-                            endpoints.append(((y - use_size, x), (y + 1, x + 1)))
+                            endpoints.append(((y - use_size, x), (y, x)))
                         if y + use_size <= 9:
-                            endpoints.append(((y, x), (y + use_size + 1, x + 1)))
+                            endpoints.append(((y, x), (y + use_size, x)))
                         if x - use_size >= 0:
-                            endpoints.append(((y, x - use_size), (y + 1, x + 1)))
+                            endpoints.append(((y, x - use_size), (y, x)))
                         if x + use_size <= 9:
-                            endpoints.append(((y, x), (y + 1, x + use_size + 1)))
+                            endpoints.append(((y, x), (y, x + use_size)))
 
+                        # add 1 to all endpoints to compensate for python indexing
                         for (start_y, start_x), (end_y, end_x) in endpoints:
-                            if np.all(self.shot_map[start_y:end_y, start_x:end_x] == 0):
-                                prob_map[start_y:end_y, start_x:end_x] += 1
+                            if np.all(self.shot_map[start_y:end_y+1, start_x:end_x+1] == 0):
+                                prob_map[start_y:end_y+1, start_x:end_x+1] += 1
 
+                    # WAYYYYY TOO LONG, must be improved
+                    
+                    # for key, value in self.hint_list.items():
+                    #     for idx in value[2]:
+                    #         if self.moves_made[idx] is Move.UNKNOWN:
+                    #             x,y=get_coords(idx)
+                    #             prob_map[y][x]+=value[0]
+                    
                     # increase probability of attacking tiles near successful hits
                     if self.moves_made[get_index(x,y)] is Move.HIT:
 
