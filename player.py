@@ -10,27 +10,28 @@ class Player():
         self.max_hp = len(ship_sizes)
         #player's hp value 
         self.hp = self.max_hp
+        
         #list of all the player's ships 
         self.ships_to_be_placed = ship_sizes
         self.ships = set()
         #list of all index of the tiles occupied by the player's ships
         self.list_tiles_ships = set()
-        #list of all the player's mines
+        
         self.mines_to_be_placed = mine_nb
+        #list of all the player's mines
         self.mines = set()
         #list of all index of the tiles occupied by a player's mines
         self.list_tiles_mines = set()
+        
         #list containing all the moves made by the player
         self.moves_made = ['U' for i in range(100)]
         self.moves_made_indexes = set()
         
         #list of hint for each move made by the player
         self.hint_list = {}
-        
+
         self.ready = False
-        
         self.has_played = False
-        
         
         if r_placement:
             #automatic placement of all ships

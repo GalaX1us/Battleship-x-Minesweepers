@@ -19,7 +19,11 @@ class PlayerAI(Player):
         self.shot_map = np.zeros([10, 10])
     
     def gen_prob_map(self):
+        """
+           Generates the grid with for each cell its probability to contain a ship
+        """
         
+        #create a 10 x 10 matrix with only zeros
         prob_map = np.zeros([10, 10])
         
         for ship_s in self.ships_to_be_placed:
@@ -30,6 +34,7 @@ class PlayerAI(Player):
                     if self.moves_made[get_index(x,y)] == 'U':
                         # get potential ship endpoints
                         endpoints = []
+                        
                         # add 1 to all endpoints to compensate for python indexing
                         if y - use_size >= 0:
                             endpoints.append(((y - use_size, x), (y + 1, x + 1)))
@@ -44,8 +49,8 @@ class PlayerAI(Player):
                             if np.all(self.shot_map[start_y:end_y, start_x:end_x] == 0):
                                 prob_map[start_y:end_y, start_x:end_x] += 1
 
-                    # increase probability of attacking squares near successful hits
-                    if self.moves_made[get_index(x,y)]=='H':  # un-weight hits on sunk ships
+                    # increase probability of attacking tiles near successful hits
+                    if self.moves_made[get_index(x,y)]=='H':
 
                         if (y + 1 <= 9) and (self.shot_map[y + 1][x] == 0):
                             if (y - 1 >= 0) and self.moves_made[get_index(x,y-1)]=='H':
@@ -78,6 +83,14 @@ class PlayerAI(Player):
         self.prob_map = prob_map
         
     def make_move(self, opponent:Player):
+        """automatically makes the AI play
+
+        Args:
+            opponent (Player): current opponent
+
+        Returns:
+            int: index of the move
+        """
         
         missed=True
         x,y = self.find_good_move()
@@ -114,8 +127,8 @@ class PlayerAI(Player):
         
         self.gen_prob_map()
         
-        max_indices = np.where(self.prob_map == np.amax(self.prob_map))
-        guess_y, guess_x = max_indices[0][0], max_indices[1][0]
+        best_prob = np.where(self.prob_map == np.amax(self.prob_map))
+        guess_y, guess_x = best_prob[0][0], best_prob[1][0]
         
         return guess_x, guess_y
         
