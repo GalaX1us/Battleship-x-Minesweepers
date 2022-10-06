@@ -111,16 +111,16 @@ def draw_moves_made(player:Player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEI
                     
                     #display only ships hints
                     if game.hint_option == 0:
-                        draw_text(str(player.hint_list[i][0]), x+7, y,size=30,color=L_GREY)
+                        draw_text(str(player.hint_list[i][0]), x+7, y,size=30,color=ELEMENT_COLOR["Ship"])
                     
                     #display only mines hints
                     elif game.hint_option == 1:
-                        draw_text("{0:>2}".format(str(player.hint_list[i][1])), x+35, y+32,size=30,color=YELLOW)
+                        draw_text("{0:>2}".format(str(player.hint_list[i][1])), x+35, y+32,size=30,color=ELEMENT_COLOR["Mine"])
                     
                     #display both
                     else:
-                        draw_text(str(player.hint_list[i][0]), x+7, y,size=30,color=L_GREY)
-                        draw_text("{0:>2}".format(str(player.hint_list[i][1])), x+35, y+32,size=30,color=YELLOW)
+                        draw_text(str(player.hint_list[i][0]), x+7, y,size=30,color=ELEMENT_COLOR["Ship"])
+                        draw_text("{0:>2}".format(str(player.hint_list[i][1])), x+35, y+32,size=30,color=ELEMENT_COLOR["Mine"])
                     
             
         

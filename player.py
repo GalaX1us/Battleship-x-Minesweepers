@@ -10,10 +10,11 @@ class Player():
         self.hp = self.max_hp
         
         self.ships_to_be_placed = ship_sizes
+        self.mines_to_be_placed = mine_nb
+        
         self.ships = set()
         self.list_tiles_ships = set()
         
-        self.mines_to_be_placed = mine_nb
         self.mines = set()
         self.list_tiles_mines = set()
         
