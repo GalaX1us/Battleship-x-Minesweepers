@@ -44,6 +44,8 @@ class Game():
         #is the game over yet
         self.over = False
         
+        self.rounds = 0
+        
         #Search grid is the hidden opponent grid with your shot displayed
         #Player's own grid is he's own grid with opponent's shot displayed 
         self.show_search_grid = True
@@ -214,13 +216,19 @@ class Game():
             nb_m, nb_s = self.compute_hint(neib)
             self.current_player.add_hint(idx, nb_s, nb_m)
             
+            #trigger the end of the game
+            if not self.current_player.is_alive() or not self.current_opponent.is_alive():
+                self.over = True
+            
     def next_round(self):
         """
         Launch the next round
         """
         self.current_player.has_played=False
         self.change_player()
+        self.rounds+=1
         self.pause = False
+        
         
         
         

@@ -286,10 +286,6 @@ def main_loop(game:Game, AI=0):
            
         if type(game.current_player)==PlayerAI and not game.over and not game.pause:
             game.play()   
-                        
-        #trigger the end of the game
-        if not game.current_player.is_alive() or not game.current_opponent.is_alive():
-            game.over = True
             
         #fill screen background                  
         SCREEN.fill(GREY)

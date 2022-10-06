@@ -124,7 +124,8 @@ class PlayerAI(Player):
         return idx
 
     def find_good_move(self):
-        """Find the best move that can be done based on the matric of probability
+        """
+        Find the best move that can be done based on the matric of probability
 
         Returns:
             tuple(int,int): coords of the best move
