@@ -67,7 +67,7 @@ class Player():
         mine = Mine(coords)
         if mine.check_validity(self.list_tiles_mines,self.list_tiles_ships):
             self.mines.add(mine)
-            self.list_tiles_mines.add(mine.get_index())
+            self.list_tiles_mines.add(mine.index)
             self.check_ready()
             
     def auto_place_ships(self, sizes=[3,3,3]):
