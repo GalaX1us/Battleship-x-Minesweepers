@@ -4,31 +4,29 @@ from utils import *
 
 class Player():
     def __init__(self,name,ship_sizes=[3,3,3],mine_nb=8,r_placement=True):
-        #player's name
+        
         self.name = name
-        #max hp value
         self.max_hp = len(ship_sizes)
-        #player's hp value 
         self.hp = self.max_hp
-        #list of all the player's ships 
+        
         self.ships_to_be_placed = ship_sizes
-        self.ships = set()
-        #list of all index of the tiles occupied by the player's ships
-        self.list_tiles_ships = set()
-        #list of all the player's mines
         self.mines_to_be_placed = mine_nb
+        
+        self.ships = set()
+        self.list_tiles_ships = set()
+        
         self.mines = set()
-        #list of all index of the tiles occupied by a player's mines
         self.list_tiles_mines = set()
+        
         #list containing all the moves made by the player
-        self.moves_made = ['U' for i in range(100)]
+        self.moves_made = [Move.UNKNOWN for i in range(100)]
         self.moves_made_indexes = set()
         
         #list of hint for each move made by the player
         self.hint_list = {}
-        
+
         self.ready = False
-        
+        self.has_played = False
         
         if r_placement:
             #automatic placement of all ships
@@ -39,10 +37,21 @@ class Player():
     
     
     def check_ready(self):
+        """
+        makes the player ready if he placed all his ships and mines
+        """
         if len(self.ships)==len(self.ships_to_be_placed) and len(self.mines) == self.mines_to_be_placed:
             self.ready=True
     
     def place_ship(self,size,coords,orient):
+        """
+        Check if a ship can be placed at the specified place and if yes, place it
+
+        Args:
+            size (int): size of the ship
+            coords (tuple(int)): coords of endpoint
+            orient (string): orientation
+        """
         ship = Ship(size,coords,orient)
         if ship.check_validity(self.list_tiles_ships,self.list_tiles_mines):
             self.ships.add(ship)
@@ -50,6 +59,11 @@ class Player():
             self.check_ready()
     
     def place_mine(self,coords):
+        """
+        Check if a mine can be placed at the specified place and if yes, place it   
+        Args:
+            coords (tuple(int,int)): coords of the mine
+        """
         mine = Mine(coords)
         if mine.check_validity(self.list_tiles_mines,self.list_tiles_ships):
             self.mines.add(mine)
@@ -89,8 +103,8 @@ class Player():
             self.mines.add(mine)
             self.list_tiles_mines.add(mine.index)      
     
-    def add_hint(self,idx,nb_s,nb_m):
-        self.hint_list[idx]=(nb_s,nb_m)
+    def add_hint(self,idx,nb_s,nb_m, neib):
+        self.hint_list[idx]=(nb_s,nb_m, neib)
     
     def add_move(self,idx,value):
         """Update the list of moves made by player 
@@ -122,7 +136,7 @@ class Player():
         """Says if the player is still alive
         
         Returns:
-            bool: True if player's hp < 0
+            bool: True if player's hp > 0
         """
         return self.hp>0
     
@@ -144,29 +158,29 @@ class Player():
         missed=True
         idx = 10*y+x
         
-        if self.moves_made[idx]!='U':
-            return False
+        if self.moves_made[idx] is not Move.UNKNOWN:
+            return
         
         if idx in opponent.list_tiles_mines:
             self.boom()
-            self.add_move(idx, 'E')
+            self.add_move(idx, Move.EXPLOSION)
             missed=False
         
         for ship in opponent.ships:
             if idx in ship.occupied_tiles:
                 ship.getting_shot(idx)
-                self.add_move(idx, 'H')
+                self.add_move(idx, Move.HIT)
                 
                 #check if the ship is sunk
                 if ship.sunk:
                     for i in ship.occupied_tiles:
-                        self.add_move(i, 'S')
+                        self.add_move(i, Move.SUNK)
                     opponent.boom()
                 missed=False
                 break
         
         if missed:
-            self.add_move(idx, 'M')
+            self.add_move(idx, Move.MISS)
             
-        return True
+        self.has_played=True
     

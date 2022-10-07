@@ -1,3 +1,5 @@
+from enum import Enum, auto
+
 #Colors
 GREY = (40,50,60)
 L_GREY = (211, 211, 211)
@@ -10,8 +12,16 @@ GREEN = (50,200,150)
 PURPLE = (150, 111, 214)
 YELLOW = (255,233,0)
 
+class Move(Enum):
+    UNKNOWN = auto()
+    MISS = auto()
+    HIT = auto()
+    SUNK = auto()
+    EXPLOSION = auto()
+    FLAG = auto()
+    
 #colors corresponding to each move
-MOVE_COLOR={'M':BLUE,'H':ORANGE,'S':RED,'E':[YELLOW,BLACK]}
+MOVE_COLOR={Move.MISS:BLUE, Move.HIT:ORANGE, Move.SUNK:RED, Move.EXPLOSION:[YELLOW,BLACK]}
 
 #color corresponding to each starting elements
 ELEMENT_COLOR={"Ship":L_GREY,"Mine":YELLOW}

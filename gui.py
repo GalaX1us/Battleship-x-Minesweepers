@@ -8,7 +8,8 @@ from game import Game
 import time
 from button import Button
 from utils import *
-
+from AI import PlayerAI
+from threading import Timer
 
 #initialize key components of the game
 pygame.init()
@@ -16,6 +17,7 @@ pygame.display.set_caption("Bataille Navale X Démineur")
 SCREEN = pygame.display.set_mode((WIDTH,HEIGHT))
 mainClock = pygame.time.Clock()
 logo = pygame.transform.scale(pygame.image.load("assets/images/logo.png"), ((WIDTH/2,WIDTH/2)))
+flag = pygame.transform.scale(pygame.image.load("assets/images/flag.png"), ((TILE_SIZE,TILE_SIZE)))
 
 def init_game():
     game = Game()
@@ -66,7 +68,8 @@ def draw_grid(x_offset=0,y_offset=INFO_MARGIN_HEIGHT):
         pygame.draw.rect(SCREEN, WHITE, square, width=3)
         
 def draw_moves_made(player:Player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEIGHT,search=True):
-    """display all the moves that a specific player have done since the begining
+    """
+    display all the moves that a specific player have done since the begining
 
     Args:
         player (Player): player whose moves are to be displayed
@@ -79,43 +82,45 @@ def draw_moves_made(player:Player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEI
     rad = TILE_SIZE//2-INDENT if search else TILE_SIZE//5
         
     #loop through all moves made
-    for i in player.moves_made_indexes:
-        
-        #compute pixel coords
-        x=i%NB_TILE*TILE_SIZE+x_offset
-        y=i//NB_TILE*TILE_SIZE+y_offset
-        
+    for i in range(NB_TILE**2):
+               
         #get the move which was made on index i
-        symbol = player.moves_made[i]
+        mv = player.moves_made[i]
         
         #if a move was made
-        if symbol != 'U':
+        if mv is not Move.UNKNOWN:
+            
+            #compute pixel coords
+            x=i%NB_TILE*TILE_SIZE+x_offset
+            y=i//NB_TILE*TILE_SIZE+y_offset
             
             #if the move was a mine explosion
-            if symbol == 'E':
+            if mv is Move.EXPLOSION:
                 #display an inactive mine
-                pygame.draw.circle(SCREEN, MOVE_COLOR[symbol][0], (x+TILE_SIZE//2,y+TILE_SIZE//2), rad)
-                draw_text('X', x+18, y+8,size=45,color=MOVE_COLOR[symbol][1])
+                pygame.draw.circle(SCREEN, MOVE_COLOR[mv][0], (x+TILE_SIZE//2,y+TILE_SIZE//2), rad)
+                draw_text('X', x+18, y+8,size=45,color=MOVE_COLOR[mv][1])
+            elif mv is Move.FLAG:
+                SCREEN.blit(flag, (x,y))
             else:
                 
                 #display a circle with a color corresponding to a certain type of move 
-                pygame.draw.circle(SCREEN, MOVE_COLOR[symbol], (x+TILE_SIZE//2,y+TILE_SIZE//2), rad)
+                pygame.draw.circle(SCREEN, MOVE_COLOR[mv], (x+TILE_SIZE//2,y+TILE_SIZE//2), rad)
             
-            #if the move was a miss, display the infos of the surrounding tiles (radius 2)
-            if symbol == 'M' and game.show_search_grid and game.hint_option<=2 and game.hint_radius:
-                
-                #display only ships hints
-                if game.hint_option == 0:
-                    draw_text(str(player.hint_list[i][0]), x+7, y,size=30,color=L_GREY)
-                
-                #display only mines hints
-                elif game.hint_option == 1:
-                    draw_text("{0:>2}".format(str(player.hint_list[i][1])), x+35, y+32,size=30,color=YELLOW)
-                
-                #display both
-                else:
-                    draw_text(str(player.hint_list[i][0]), x+7, y,size=30,color=L_GREY)
-                    draw_text("{0:>2}".format(str(player.hint_list[i][1])), x+35, y+32,size=30,color=YELLOW)
+                #if the move was a miss, display the infos of the surrounding tiles (radius 2)
+                if mv is Move.MISS and game.show_search_grid and game.hint_option<=2 and game.hint_radius:
+                    
+                    #display only ships hints
+                    if game.hint_option == 0:
+                        draw_text(str(player.hint_list[i][0]), x+7, y,size=30,color=ELEMENT_COLOR["Ship"])
+                    
+                    #display only mines hints
+                    elif game.hint_option == 1:
+                        draw_text("{0:>2}".format(str(player.hint_list[i][1])), x+35, y+32,size=30,color=ELEMENT_COLOR["Mine"])
+                    
+                    #display both
+                    else:
+                        draw_text(str(player.hint_list[i][0]), x+7, y,size=30,color=ELEMENT_COLOR["Ship"])
+                        draw_text("{0:>2}".format(str(player.hint_list[i][1])), x+35, y+32,size=30,color=ELEMENT_COLOR["Mine"])
                     
             
         
@@ -231,16 +236,17 @@ def draw_player_grid(game:Game):
     #display the moves made by the opponent
     draw_moves_made(game.current_opponent,game,search=False)
     
-def main_loop(game:Game):
+    
+def main_loop(game:Game, AI=0):
     """
         Main loop of the game, display the game grid
     """    
     #game initialisation
-    game.start_game()
-    if not game.random_placement:
+    game.init_players(AI)
+    if not game.random_placement and AI!=2:
         placement_menu(game)
     running = True
-    played = False
+    waiting = False
     
     #buttons creation
     buttons = []
@@ -256,7 +262,6 @@ def main_loop(game:Game):
     #main loop
     while running:
         
-        victory = game.over
         #handle user inputs
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -264,30 +269,31 @@ def main_loop(game:Game):
                 quit()
             
             #allows you to leave the game by pressing space when the game is over
-            if event.type == pygame.KEYDOWN and victory:
-                if event.type == pygame.K_SPACE and victory:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and game.over:
                     running=False
-                    main_menu()
+                    init_game()
             
             #get mouse clik
-            if event.type == pygame.MOUSEBUTTONDOWN and not victory:
-                if pygame.mouse.get_pressed()[0]:
+            if event.type == pygame.MOUSEBUTTONDOWN and not game.over and not game.pause and type(game.current_player)!=PlayerAI:
+                
+                #get mouse coords
+                location = pygame.mouse.get_pos()
+                x,y,validity=get_position(location[0], location[1])
+                
+                #check if coords are valid and correspond to a specific tile
+                if validity and game.show_search_grid :
+                    if pygame.mouse.get_pressed()[0]:
                     
-                    #get mouse coords
-                    location = pygame.mouse.get_pos()
-                    x,y,validity=get_position(location[0], location[1])
-                    
-                    #check if coords are valid and correspond to a specific tile
-                    if validity and game.show_search_grid:
-                        
                         #play or not the player's move depending on whether the same move has already been played
-                        played = game.play(x,y)
-                        
-                        #trigger the end of the game
-                        if not game.current_player.is_alive() or not game.current_opponent.is_alive():
-                            game.over = True
-                            played = not played
-                            
+                        game.play(x,y)
+                
+                    if pygame.mouse.get_pressed()[2]:
+                        game.place_flag(x,y)
+           
+        if type(game.current_player)==PlayerAI and not game.over and not game.pause:
+            game.play()   
+            
         #fill screen background                  
         SCREEN.fill(GREY)
         
@@ -298,7 +304,7 @@ def main_loop(game:Game):
         else:
             draw_player_grid(game)
             
-        if victory:
+        if game.over:
             #display a game over message
             draw_text("Game Over", (1/4)*WIDTH-35, 0,size=80, color=RED)
         else:       
@@ -314,10 +320,11 @@ def main_loop(game:Game):
         mainClock.tick(FPS)
         
         #moves on to the next round
-        if played:
-            time.sleep(1)
-            game.change_player()
-            played=False
+        if game.current_player.has_played and not game.over and not game.pause:
+            game.pause=True
+            t = Timer(1.0, game.next_round)
+            t.start()
+            
 
 def placement_menu(game:Game):
     #buttons creation
@@ -332,7 +339,7 @@ def placement_menu(game:Game):
     running = True
     while running:
         
-        curr=game.current_player 
+        curr=game.current_player
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -408,7 +415,7 @@ def placement_menu(game:Game):
         
         if curr.ready and game.current_opponent.ready:
             game.change_player()
-            time.sleep(1)
+            time.sleep(2)
             running=False
             
         elif curr.ready:
@@ -536,11 +543,12 @@ def main_menu(game:Game):
     """
     #creation of the buttons
     buttons = []
-    buttons.append(Button('Human Vs Human', 50,main_loop,500,80,(100,450),SCREEN,event_args=(game,))) 
-    buttons.append(Button('Human Vs AI', 50,comming_soon,500,80,(100,550),SCREEN,text_switch=["Work in progress"])) 
-    buttons.append(Button('Settings', 50,settings_menu,500,80,(100,650),SCREEN,event_args=(game,))) 
-    buttons.append(Button('Help', 50,help_menu,245,80,(100,750),SCREEN,event_args=(game,))) 
-    buttons.append(Button('Exit', 50,exit,245,80,(355,750),SCREEN)) 
+    buttons.append(Button('Player Vs Player', 50,main_loop,500,80,(100,450),SCREEN,event_args=(game,))) 
+    buttons.append(Button('Player Vs AI', 50,main_loop,500,80,(100,550),SCREEN,event_args=(game,1)))
+    buttons.append(Button('AI Vs AI', 50,main_loop,500,80,(100,650),SCREEN,event_args=(game,2))) 
+    buttons.append(Button('Settings', 50,settings_menu,245,80,(228,750),SCREEN,event_args=(game,))) 
+    buttons.append(Button('Help', 50,help_menu,120,80,(100,750),SCREEN,event_args=(game,))) 
+    buttons.append(Button('Exit', 50,exit,120,80,(480,750),SCREEN)) 
     
     #main loop of the gfunction
     running = True
