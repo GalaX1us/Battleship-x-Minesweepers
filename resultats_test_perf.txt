@@ -1,0 +1,14 @@
+====================================
+AI version : Prob Map V1
+Settings : number of games = 100, ships = [3, 3, 3], mines = 8
+Took 14.94432 secs (mean = 0.14944)
+Rounds stats : mean = 25.44, max = 55, min = 8
+====================================
+
+====================================
+AI version : Prob Map V1
+Settings : number of games = 100, ships = [5, 4, 3, 2], mines = 8
+Took 27.61873 secs (mean = 0.27619)
+Rounds stats : mean = 36.81, max = 66, min = 20
+====================================
+
