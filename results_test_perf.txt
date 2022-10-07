@@ -1,0 +1,48 @@
+====================================
+AI version : Prob Map V1
+Settings : number of games = 1000, ships = [3, 3, 3], mines = 8
+Took 173.63333 secs (mean = 0.173633)
+AI(1) Win rate : 46.30%
+Rounds stats : mean = 26.19, max = 76, min = 5
+====================================
+
+====================================
+AI version : Prob Map V2
+Settings : number of games = 1000, ships = [3, 3, 3], mines = 8
+Took 152.67368 secs (mean = 0.152674)
+AI(1) Win rate : 48.80%
+Rounds stats : mean = 24.716, max = 51, min = 5
+====================================
+
+====================================
+AI version : Prob Map V1
+Settings : number of games = 1000, ships = [3, 3, 3], mines = 0
+Took 307.12479 secs (mean = 0.307125)
+AI(1) Win rate : 51.60%
+Rounds stats : mean = 51.608, max = 84, min = 19
+====================================
+
+====================================
+AI version : Prob Map V2
+Settings : number of games = 1000, ships = [3, 3, 3], mines = 0
+Took 229.15677 secs (mean = 0.229157)
+AI(1) Win rate : 54.20%
+Rounds stats : mean = 39.594, max = 59, min = 23
+====================================
+
+====================================
+AI version : Prob Map V2
+Settings : number of games = 1000, ships = [5, 4, 3, 2], mines = 0
+Took 389.32228 secs (mean = 0.389322)
+AI(1) Win rate : 51.50%
+Rounds stats : mean = 56.023, max = 80, min = 33
+====================================
+
+====================================
+AI version : Prob Map V1
+Settings : number of games = 1000, ships = [5, 4, 3, 2], mines = 0
+Took 480.77713 secs (mean = 0.48078)
+AI(1) Win rate : 51.60%
+Rounds stats : mean = 68.476, max = 124, min = 31
+====================================
+

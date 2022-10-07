@@ -17,6 +17,13 @@ class PlayerAI(Player):
 
         self.prob_map = np.zeros([10, 10])
         self.shot_map = np.zeros([10, 10])
+        
+    def add_hint(self, idx, nb_s, nb_m, neib):
+        super().add_hint(idx, nb_s, nb_m)
+        if nb_s==0:
+            for idx in neib:
+                x,y = get_coords(idx)
+                self.shot_map[y][x]=1
     
     def gen_prob_map(self):
         """
@@ -48,14 +55,6 @@ class PlayerAI(Player):
                         for (start_y, start_x), (end_y, end_x) in endpoints:
                             if np.all(self.shot_map[start_y:end_y+1, start_x:end_x+1] == 0):
                                 prob_map[start_y:end_y+1, start_x:end_x+1] += 1
-
-                    # WAYYYYY TOO LONG, must be improved
-                    
-                    # for key, value in self.hint_list.items():
-                    #     for idx in value[2]:
-                    #         if self.moves_made[idx] is Move.UNKNOWN:
-                    #             x,y=get_coords(idx)
-                    #             prob_map[y][x]+=value[0]
                     
                     # increase probability of attacking tiles near successful hits
                     if self.moves_made[get_index(x,y)] is Move.HIT:

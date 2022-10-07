@@ -1,2 +1,6 @@
+#for all the project
 pygame
 numpy
+
+#only for test_AI_perf
+click

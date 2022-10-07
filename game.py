@@ -207,15 +207,16 @@ class Game():
         
         if type(self.current_player)==PlayerAI:
             index = self.current_player.make_move(self.current_opponent)
-            
         else:
             self.current_player.make_move(x,y,self.current_opponent)
         
         if self.current_player.has_played:
+            
             idx = index if type(self.current_player)==PlayerAI else get_index(x,y)
             neib = self.find_neighbors(idx)
             nb_m, nb_s = self.compute_hint(neib)
-            self.current_player.add_hint(idx, nb_s, nb_m, neib)
+            args = (idx, nb_s, nb_m, neib) if type(self.current_player)==PlayerAI else (idx, nb_s, nb_m)
+            self.current_player.add_hint(*args)
             
             #trigger the end of the game
             if not self.current_player.is_alive() or not self.current_opponent.is_alive():
