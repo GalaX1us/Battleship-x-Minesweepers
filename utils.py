@@ -48,6 +48,8 @@ MAX_SHIP_NB = 8
 MIN_SHIP_NB = 1
 MAX_MINE_NB = 15
 MIN_MINE_NB = 0
+MAX_SHIP_LENGTH = 5
+MIN_SHIP_LENGTH = 2
 
 def get_index(x,y):
     """compute the index from x and y coords
