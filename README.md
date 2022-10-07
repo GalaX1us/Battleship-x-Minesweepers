@@ -33,6 +33,7 @@ In addition to the basic rules and functionalities of the game I implemented som
   - Search grid, it's the hidden opponent grid with your shot displayed
   - Player's grid, it's the current player grid with opponent's shot displayed
 - You can right click on a tile to place a flag as in the Minesweaper game
+- Next button to allow time for the players to move on to the next round
 
 **AI explanation**
 
