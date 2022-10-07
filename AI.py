@@ -18,8 +18,12 @@ class PlayerAI(Player):
         self.prob_map = np.zeros([10, 10])
         self.shot_map = np.zeros([10, 10])
         
+        self.opponent_remaining_sizes=ship_sizes
+        
     def add_hint(self, idx, nb_s, nb_m, neib):
         super().add_hint(idx, nb_s, nb_m)
+        
+        # the tiles as clear because the number of ships in this area is zero
         if nb_s==0:
             for idx in neib:
                 x,y = get_coords(idx)
@@ -33,12 +37,16 @@ class PlayerAI(Player):
         #create a 10 x 10 matrix with only zeros
         prob_map = np.zeros([10, 10])
         
-        for ship_s in self.ships_to_be_placed:
+        for ship_s in self.ships_sizes:
             use_size = ship_s - 1
             # check where a ship will fit on the board
             for y in range(NB_TILE):
                 for x in range(NB_TILE):
-                    if self.moves_made[get_index(x,y)] is Move.UNKNOWN:
+                    # set the probability for misses or explosion to zero
+                    if self.moves_made[get_index(x,y)] is Move.MISS or self.moves_made[get_index(x,y)] is Move.EXPLOSION:
+                        prob_map[y][x] = 0
+                        
+                    elif self.moves_made[get_index(x,y)] is Move.UNKNOWN:
                         # get potential ship endpoints
                         endpoints = []
                         
@@ -57,7 +65,7 @@ class PlayerAI(Player):
                                 prob_map[start_y:end_y+1, start_x:end_x+1] += 1
                     
                     # increase probability of attacking tiles near successful hits
-                    if self.moves_made[get_index(x,y)] is Move.HIT:
+                    elif self.moves_made[get_index(x,y)] is Move.HIT:
 
                         if (y + 1 <= 9) and (self.shot_map[y + 1][x] == 0):
                             if (y - 1 >= 0) and self.moves_made[get_index(x,y-1)] is Move.HIT:
@@ -82,10 +90,6 @@ class PlayerAI(Player):
                                 prob_map[y][x - 1] += 15
                             else:
                                 prob_map[y][x - 1] += 10
-
-                    # decrease probability for misses to zero
-                    elif self.moves_made[get_index(x,y)] is Move.MISS or self.moves_made[get_index(x,y)] is Move.EXPLOSION:
-                        prob_map[y][x] = 0
 
         self.prob_map = prob_map
         

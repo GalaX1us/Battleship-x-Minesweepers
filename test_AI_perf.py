@@ -3,11 +3,13 @@ from AI import PlayerAI
 import time
 import click
 
+# ==== Settings ====
 NB_GAME = 1000
 NB_MINE=0
 SHIP_SIZES=[5,4,3,2]
-RESULT_FILE = "resultats_test_perf.txt"
-AI_VERSION = "Prob Map V1"
+RESULT_FILE = "results_test_perf.txt"
+AI_VERSION = "Prob Map V3"
+# ==================
 
 game_rounds_list = []
 game_winners_list = []

@@ -46,3 +46,10 @@ AI(1) Win rate : 51.60%
 Rounds stats : mean = 68.476, max = 124, min = 31
 ====================================
 
+====================================
+AI version : Prob Map V3
+Settings : number of games = 1000, ships = [5, 4, 3, 2], mines = 0
+Took 380.85358 secs (mean = 0.38085)
+AI(1) Win rate : 54.70%
+Rounds stats : mean = 55.795, max = 83, min = 35
+====================================

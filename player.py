@@ -3,13 +3,13 @@ from mine import *
 from utils import *
 
 class Player():
-    def __init__(self,name,ship_sizes=[3,3,3],mine_nb=8,r_placement=True):     
+    def __init__(self,name,ships_sizes=[3,3,3],mine_nb=8,r_placement=True):     
         
         self.name = name
-        self.max_hp = len(ship_sizes)
+        self.max_hp = len(ships_sizes)
         self.hp = self.max_hp
         
-        self.ships_to_be_placed = ship_sizes
+        self.ships_sizes = ships_sizes
         self.mines_to_be_placed = mine_nb
         
         self.ships = set()
@@ -30,7 +30,7 @@ class Player():
         
         if r_placement:
             #automatic placement of all ships
-            self.auto_place_ships(self.ships_to_be_placed)
+            self.auto_place_ships(self.ships_sizes)
             #automatic placement of all mines
             self.auto_place_mines(nb=self.mines_to_be_placed)
             self.check_ready()
@@ -40,7 +40,7 @@ class Player():
         """
         makes the player ready if he placed all his ships and mines
         """
-        if len(self.ships)==len(self.ships_to_be_placed) and len(self.mines) == self.mines_to_be_placed:
+        if len(self.ships)==len(self.ships_sizes) and len(self.mines) == self.mines_to_be_placed:
             self.ready=True
     
     def place_ship(self,size,coords,orient):

@@ -61,6 +61,9 @@ class Game():
         self.placement_type = "Ship"
         
         self.pause = False
+    
+    def switch_pause(self):
+        self.pause = not self.pause
 
     def switch_placement_type(self):
         """
@@ -233,6 +236,13 @@ class Game():
         self.pause = False
         
     def place_flag(self,x,y):
+        """
+        Place a flag on a specific tile.
+
+        Args:
+            x (int): horizontal coord
+            y (int): vertical coord
+        """
         idx = get_index(x,y)
         curr = self.current_player
         if curr.moves_made[idx] is Move.UNKNOWN:
