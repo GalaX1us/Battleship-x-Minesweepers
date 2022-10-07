@@ -41,9 +41,10 @@ class Game():
         self.current_player = self.player1
         self.current_opponent = self.player2
         
+        self.winner = None
+        
         #is the game over yet
         self.over = False
-        
         self.rounds = 0
         
         #Search grid is the hidden opponent grid with your shot displayed
@@ -219,6 +220,7 @@ class Game():
             #trigger the end of the game
             if not self.current_player.is_alive() or not self.current_opponent.is_alive():
                 self.over = True
+                self.winner = self.current_player if not self.current_opponent.is_alive() else self.current_opponent
             
     def next_round(self):
         """
