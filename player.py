@@ -3,16 +3,7 @@ from mine import *
 from utils import *
 
 class Player():
-    def __init__(self,name,ship_sizes=[3,3,3],mine_nb=8,r_placement=True):
-        
-        assert(len(ship_sizes)>MAX_SHIP_NB,f"Too much ships to place, {MAX_SHIP_NB} max !")
-        assert(len(ship_sizes)<MIN_SHIP_NB,f"Not enough ship to place, {MIN_SHIP_NB} min !")
-        assert(max(ship_sizes)>MAX_SHIP_LENGTH,f"At least one ship is too long, {MAX_SHIP_LENGTH} max !")
-        assert(min(ship_sizes)<MIN_SHIP_LENGTH,f"At least one ship is too short, {MIN_SHIP_NB} min !")
-        
-        assert(mine_nb>MAX_MINE_NB,"To much mines to place, {} max !".format(MAX_MINE_NB))
-        assert(mine_nb<MIN_MINE_NB,"Not enough mine to place, {} min !".format(MIN_MINE_NB))
-        
+    def __init__(self,name,ship_sizes=[3,3,3],mine_nb=8,r_placement=True):     
         
         self.name = name
         self.max_hp = len(ship_sizes)

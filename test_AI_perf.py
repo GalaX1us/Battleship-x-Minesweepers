@@ -3,7 +3,7 @@ from AI import PlayerAI
 import time
 
 NB_GAME = 100
-NB_MINE=8
+NB_MINE=0
 SHIP_SIZES=[5,4,3,2]
 RESULT_FILE = "resultats_test_perf.txt"
 AI_VERSION = "Prob Map V1"
