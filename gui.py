@@ -250,6 +250,9 @@ def main_loop(game:Game, AI=0):
     
     #buttons creation
     buttons = []
+    
+    Next = Button("Next", 50,game.next_round,WIDTH/3,75,(WIDTH/3,15),SCREEN,colorB=GREEN)
+    
     buttons.append(Button("Search grid", 50,game.switch_grid,WIDTH/2,75,(WIDTH/4,HEIGHT-GRID_SWITCH_MARGIN_HEIGHT+7),SCREEN, 
                           text_switch=["Your grid"],colorB=GREEN))
     if not game.hint_radius:
@@ -275,7 +278,7 @@ def main_loop(game:Game, AI=0):
                     init_game()
             
             #get mouse clik
-            if event.type == pygame.MOUSEBUTTONDOWN and not game.over and not game.pause and type(game.current_player)!=PlayerAI:
+            if event.type == pygame.MOUSEBUTTONDOWN and not game.over and type(game.current_player)!=PlayerAI:
                 
                 #get mouse coords
                 location = pygame.mouse.get_pos()
@@ -283,7 +286,7 @@ def main_loop(game:Game, AI=0):
                 
                 #check if coords are valid and correspond to a specific tile
                 if validity and game.show_search_grid :
-                    if pygame.mouse.get_pressed()[0]:
+                    if pygame.mouse.get_pressed()[0] and not game.pause:
                     
                         #play or not the player's move depending on whether the same move has already been played
                         game.play(x,y)
@@ -314,17 +317,20 @@ def main_loop(game:Game, AI=0):
         
         #display buttons
         buttons_draw(buttons)
-                    
-        #update screen
-        pygame.display.update()
-        mainClock.tick(FPS)
         
         #moves on to the next round
         if game.current_player.has_played and not game.over and not game.pause:
             game.pause=True
-            t = Timer(1.0, game.next_round)
-            t.start()
+            if type(game.current_player)==PlayerAI:
+                t = Timer(1.0, game.next_round)
+                t.start()
             
+        if type(game.current_player)==Player and game.pause and not game.over and game.current_player.has_played:
+            Next.draw()
+        
+        #update screen
+        pygame.display.update()
+        mainClock.tick(FPS)
 
 def placement_menu(game:Game):
     #buttons creation
@@ -366,7 +372,7 @@ def placement_menu(game:Game):
                         
                         if game.placement_type == "Ship" and len(curr.ships)<game.nb_ships:
                         
-                            s=curr.ships_to_be_placed[len(curr.ships)]
+                            s=curr.ships_sizes[len(curr.ships)]
                             curr.place_ship(s,(x,y),orient)
                             
                         elif game.placement_type == "Mine" and len(curr.mines)<game.nb_mines:
@@ -386,7 +392,7 @@ def placement_menu(game:Game):
         if validity and not curr.ready:
             
             if game.placement_type == "Ship" and len(curr.ships)<game.nb_ships:
-                s=curr.ships_to_be_placed[len(curr.ships)]
+                s=curr.ships_sizes[len(curr.ships)]
                 if Ship(s,(x,y),orient).check_validity(curr.list_tiles_ships,curr.list_tiles_mines):
                     
                     show_single_ship(s,(x,y),orient)
@@ -452,22 +458,25 @@ def help_menu(game:Game):
         draw_text("Mines", 320, 135, color=ELEMENT_COLOR["Mine"])
         
         #exploded mine help
-        pygame.draw.circle(SCREEN, MOVE_COLOR['E'][0], (225,265), 40)
-        draw_text('X', 191,210,size=90,color=MOVE_COLOR['E'][1])
-        draw_text("Exploded", 320, 235, color=MOVE_COLOR['E'][1])
+        pygame.draw.circle(SCREEN, MOVE_COLOR[Move.EXPLOSION][0], (225,265), 40)
+        draw_text('X', 191,210,size=90,color=MOVE_COLOR[Move.EXPLOSION][1])
+        draw_text("Exploded", 320, 235, color=MOVE_COLOR[Move.EXPLOSION][1])
         
         #hit help
-        pygame.draw.circle(SCREEN, MOVE_COLOR['H'], (225,365), 40)
-        draw_text("Hit", 320, 335, color=MOVE_COLOR['H'])
+        pygame.draw.circle(SCREEN, MOVE_COLOR[Move.HIT], (225,365), 40)
+        draw_text("Hit", 320, 335, color=MOVE_COLOR[Move.HIT])
         
         #sunk help
         rec2 = pygame.Rect(55, 430 , 3*TILE_SIZE, TILE_SIZE)
-        pygame.draw.rect(SCREEN, MOVE_COLOR['S'] , rec2, border_radius=50)
-        draw_text("Sunk", 320, 435, color=MOVE_COLOR['S'])
+        pygame.draw.rect(SCREEN, MOVE_COLOR[Move.SUNK] , rec2, border_radius=50)
+        draw_text("Sunk", 320, 435, color=MOVE_COLOR[Move.SUNK])
         
         #missed help
-        pygame.draw.circle(SCREEN, MOVE_COLOR['M'], (225,565), 40)
-        draw_text("Missed", 320, 535, color=MOVE_COLOR['M'])
+        pygame.draw.circle(SCREEN, MOVE_COLOR[Move.MISS], (225,565), 40)
+        draw_text("Missed", 320, 535, color=MOVE_COLOR[Move.MISS])
+        
+        SCREEN.blit(pygame.transform.scale(flag,(100,100)), (180,625))
+        draw_text("Flag", 320, 635, color=RED)
         
         #show buttons
         buttons_draw(buttons)
