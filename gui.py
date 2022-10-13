@@ -13,7 +13,7 @@ from threading import Timer
 
 #initialize key components of the game
 pygame.init()
-pygame.display.set_caption("Bataille Navale X Démineur")
+pygame.display.set_caption("Battleship X Minesweaper")
 SCREEN = pygame.display.set_mode((WIDTH,HEIGHT))
 mainClock = pygame.time.Clock()
 logo = pygame.transform.scale(pygame.image.load("assets/images/logo.png"), ((WIDTH/2,WIDTH/2)))
@@ -246,7 +246,6 @@ def main_loop(game:Game, AI=0):
     if not game.random_placement and AI!=2:
         placement_menu(game)
     running = True
-    waiting = False
     
     #buttons creation
     buttons = []
@@ -524,7 +523,8 @@ def settings_menu(game:Game):
         draw_text( "Hint radius", 215, 0, size=50, color=BLUE)
         draw_text( str(game.hint_radius), 325, 65, size=80, color=BLUE)
         
-        draw_text( "Random placement", 120, 180, size=50, color=BLUE)       
+        draw_text( "Random placement", 120, 180, size=50, color=BLUE)   
+            
         if game.random_placement:
             draw_text("On", 300,250, size=70, color=GREEN)
         else:
