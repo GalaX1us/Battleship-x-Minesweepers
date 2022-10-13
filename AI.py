@@ -42,11 +42,13 @@ class PlayerAI(Player):
             # check where a ship will fit on the board
             for y in range(NB_TILE):
                 for x in range(NB_TILE):
+                    
                     # set the probability for misses or explosion to zero
                     if self.moves_made[get_index(x,y)] is Move.MISS or self.moves_made[get_index(x,y)] is Move.EXPLOSION:
                         prob_map[y][x] = 0
                         
                     elif self.moves_made[get_index(x,y)] is Move.UNKNOWN:
+                        
                         # get potential ship endpoints
                         endpoints = []
                         
@@ -59,9 +61,11 @@ class PlayerAI(Player):
                         if x + use_size <= 9:
                             endpoints.append(((y, x), (y, x + use_size)))
 
-                        # add 1 to all endpoints to compensate for python indexing
                         for (start_y, start_x), (end_y, end_x) in endpoints:
                             if np.all(self.shot_map[start_y:end_y+1, start_x:end_x+1] == 0):
+                                
+                                # add 1 to all endpoints to compensate for python indexing
+                                # increase probability of attacking tiles where a ship can fits in
                                 prob_map[start_y:end_y+1, start_x:end_x+1] += 1
                     
                     # increase probability of attacking tiles near successful hits
@@ -94,7 +98,8 @@ class PlayerAI(Player):
         self.prob_map = prob_map
         
     def make_move(self, opponent:Player):
-        """automatically makes the AI play
+        """
+        Automatically makes the AI play
 
         Args:
             opponent (Player): current opponent
@@ -136,7 +141,7 @@ class PlayerAI(Player):
 
     def find_good_move(self):
         """
-        Find the best move that can be done based on the matric of probability
+        Find the best move that can be done based on the matrix of probability
 
         Returns:
             tuple(int,int): coords of the best move
@@ -144,6 +149,7 @@ class PlayerAI(Player):
         
         self.gen_prob_map()
         
+        # gets the index of the largest probability in the matrix
         best_prob = np.where(self.prob_map == np.amax(self.prob_map))
         guess_y, guess_x = best_prob[0][0], best_prob[1][0]
         

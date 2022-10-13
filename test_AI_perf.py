@@ -3,6 +3,11 @@ from AI import PlayerAI
 import time
 import click
 
+# This program aims to test the performance of different types of AI
+# on different types of game (diff settings)
+  
+
+
 # ==== Settings ====
 NB_GAME = 1000
 NB_MINE=0
@@ -18,24 +23,31 @@ global_start = time.perf_counter()
 
 print("Performance test in progress ...")
 
+# this is a live progress bar with a "time left" counter
 with click.progressbar(range(NB_GAME),fill_char='█',bar_template="[%(bar)s]  %(info)s") as bar:
     for i in bar:
+        
+        # init the i-th game 
         game = Game()
         
+        # init the i-th players
         game.player1 = PlayerAI("AI(1)",SHIP_SIZES,NB_MINE)
         game.player2 = PlayerAI("AI(2)",SHIP_SIZES,NB_MINE)       
         game.current_player = game.player1
         game.current_opponent = game.player2
         
+        # play until the end
         while not game.over:
             game.play()
             game.next_round()
-            
+        
+        # save stats of the i-th game
         game_rounds_list.append(game.rounds)
         game_winners_list.append(game.winner.name)
     
 global_end = time.perf_counter()
 
+# write stats in the result file
 with open(RESULT_FILE, "a") as fichier:
     fichier.write("====================================\n")
     fichier.write("AI version : {}\n".format(AI_VERSION))
