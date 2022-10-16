@@ -1,5 +1,7 @@
 import random
+
 from utils import *
+
 
 class Mine():
     def __init__(self,coords=()):

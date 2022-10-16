@@ -1,7 +1,9 @@
-from game import Game
-from AI import PlayerAI
 import time
+
 import click
+
+from AI import PlayerAI
+from game import Game
 
 # ==== Settings ====
 NB_GAME = 1000

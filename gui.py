@@ -1,15 +1,17 @@
+import sys
+import time
+from threading import Timer
+
 import pygame
 import pygame.freetype
-import sys
+
+from AI import PlayerAI
+from button import Button
+from game import Game
 from mine import Mine
 from player import Player
 from ship import Ship
-from game import Game
-import time
-from button import Button
 from utils import *
-from AI import PlayerAI
-from threading import Timer
 
 #initialize key components of the game
 pygame.init()

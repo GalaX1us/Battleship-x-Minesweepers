@@ -1,8 +1,10 @@
 import numpy as np
+
+from mine import *
 from player import Player
 from ship import *
-from mine import *
 from utils import *
+
 
 class PlayerAI(Player):
     """

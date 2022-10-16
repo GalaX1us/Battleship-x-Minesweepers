@@ -1,7 +1,9 @@
+import random
+
 from AI import PlayerAI
 from player import Player
-import random
 from utils import *
+
 
 def generate_ship_sizes(nb):
     """Generate the sizes of the ships with a certain repartition
@@ -61,9 +63,6 @@ class Game():
         self.placement_type = "Ship"
         
         self.pause = False
-    
-    def switch_pause(self):
-        self.pause = not self.pause
 
     def switch_placement_type(self):
         """
@@ -249,9 +248,4 @@ class Game():
             curr.moves_made[idx]=Move.FLAG
         elif curr.moves_made[idx] is Move.FLAG:
             curr.moves_made[idx]=Move.UNKNOWN
-        
-        
-        
-        
-        
-        
+            
