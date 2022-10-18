@@ -1,15 +1,16 @@
+import time
+from threading import Timer
+
 import pygame
 import pygame.freetype
-import sys
+
+from AI import PlayerAI
+from button import Button
+from game import Game
 from mine import Mine
 from player import Player
 from ship import Ship
-from game import Game
-import time
-from button import Button
 from utils import *
-from AI import PlayerAI
-from threading import Timer
 
 #initialize key components of the game
 pygame.init()
@@ -308,7 +309,7 @@ def main_loop(game:Game, AI=0):
             
         if game.over:
             #display a game over message
-            draw_text("Game Over", (1/4)*WIDTH-35, 0,size=80, color=RED)
+            draw_text(f"{game.current_player.name} Won !", (1/4)*WIDTH-35, 0,size=80, color=GREEN)
         else:       
             #display current playe name and health points
             draw_text(game.current_player.name, 20, 5,size=70)
