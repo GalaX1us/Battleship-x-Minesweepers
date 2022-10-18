@@ -1,6 +1,7 @@
-from ship import *
 from mine import *
+from ship import *
 from utils import *
+
 
 class Player():
     def __init__(self,name,ships_sizes=[3,3,3],mine_nb=8,r_placement=True):     

@@ -1,6 +1,7 @@
-from timeit import timeit
 import pygame
+
 from utils import *
+
 
 class Button:
 	def __init__(self,text,text_size,event,width,height,pos,screen,colorA=WHITE,colorB=BLUE,

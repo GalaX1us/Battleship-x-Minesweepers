@@ -1,7 +1,9 @@
-from game import Game
-from AI import PlayerAI
 import time
+
 import click
+
+from AI import PlayerAI
+from game import Game
 
 # This program aims to test the performance of different types of AI
 # on different types of game (diff settings)

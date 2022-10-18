@@ -1,7 +1,9 @@
+import random
+
 from AI import PlayerAI
 from player import Player
-import random
 from utils import *
+
 
 def generate_ship_sizes(nb):
     """Generate the sizes of the ships with a certain repartition
