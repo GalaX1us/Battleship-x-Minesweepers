@@ -110,6 +110,7 @@ class Player():
                     self.boom()
                     shot = Move.SUNK
                 break
+            
         if shot is Move.SUNK:
             for i in sunk_idx:
                 self.add_opponent_move(i,Move.SUNK)

@@ -77,16 +77,19 @@ def draw_moves_made(player:Player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEI
         game (Game): game instance
         x_offset (int, optional): horizontal offset. Defaults to 0.
         y_offset (int, optional): vertical offset. Defaults to INFO_MARGIN_HEIGHT.
-        search (bool, optional): option that define the radius of the displayed shot. Defaults to True.
+        search (bool, optional): option that define the radius of the displayed shot
+                                    if false, opponents shots are shown. Defaults to True.
     """
     #option that define the radius of the displayed shot
     rad = TILE_SIZE//2-INDENT if search else TILE_SIZE//5
+    
+    moves = player.board.moves_made if search else player.board.shots_received
         
     #loop through all moves made
     for i in range(NB_TILE**2):
                
         #get the move which was made on index i
-        mv = player.board.moves_made[i]
+        mv = moves[i]
         
         #if a move was made
         if mv is not Move.UNKNOWN:
@@ -234,7 +237,7 @@ def draw_player_grid(game:Game):
     #display player own mines
     draw_mines(game.current_player)
     #display the moves made by the opponent
-    draw_moves_made(game.current_opponent,game,search=False)
+    draw_moves_made(game.current_player,game,search=False)
     
     
 def main_loop(game:Game, AI=0):
@@ -541,10 +544,6 @@ def settings_menu(game:Game):
         #update screen
         pygame.display.update()  
         mainClock.tick(FPS)
-
-
-def comming_soon():
-    print("Work in progress")
 
 def main_menu(game:Game):
     """
