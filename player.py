@@ -1,3 +1,4 @@
+from board import Board
 from mine import *
 from ship import *
 from utils import *
@@ -11,111 +12,43 @@ class Player():
         self.hp = self.max_hp
         
         self.ships_sizes = ships_sizes
-        self.mines_to_be_placed = mine_nb
+        self.nb_mines = mine_nb
         
-        self.ships = set()
-        self.list_tiles_ships = set()
-        
-        self.mines = set()
-        self.list_tiles_mines = set()
-        
-        #list containing all the moves made by the player
-        self.moves_made = [Move.UNKNOWN for i in range(100)]
-        self.moves_made_indexes = set()
+        self.board = Board(self.ships_sizes, self.nb_mines)
         
         #list of hint for each move made by the player
         self.hint_list = {}
 
-        self.ready = False
         self.has_played = False
-        
-        if r_placement:
-            #automatic placement of all ships
-            self.auto_place_ships(self.ships_sizes)
-            #automatic placement of all mines
-            self.auto_place_mines(nb=self.mines_to_be_placed)
-            self.check_ready()
-    
-    
-    def check_ready(self):
-        """
-        makes the player ready if he placed all his ships and mines
-        """
-        if len(self.ships)==len(self.ships_sizes) and len(self.mines) == self.mines_to_be_placed:
-            self.ready=True
-    
-    def place_ship(self,size,coords,orient):
-        """
-        Check if a ship can be placed at the specified place and if yes, place it
-
-        Args:
-            size (int): size of the ship
-            coords (tuple(int)): coords of endpoint
-            orient (string): orientation
-        """
-        ship = Ship(size,coords,orient)
-        if ship.check_validity(self.list_tiles_ships,self.list_tiles_mines):
-            self.ships.add(ship)
-            self.list_tiles_ships.update(ship.occupied_tiles)
-            self.check_ready()
-    
-    def place_mine(self,coords):
-        """
-        Check if a mine can be placed at the specified place and if yes, place it   
-        Args:
-            coords (tuple(int,int)): coords of the mine
-        """
-        mine = Mine(coords)
-        if mine.check_validity(self.list_tiles_mines,self.list_tiles_ships):
-            self.mines.add(mine)
-            self.list_tiles_mines.add(mine.index)
-            self.check_ready()
-            
-    def auto_place_ships(self, sizes=[3,3,3]):
-        """Randomly places all the ships
-        
-        Args:
-            sizes (list(int), optional): ship size list. Defaults to [3,3,3].
-        """
-        for s in sizes:
-            
-            #creation of the ship
-            ship = Ship(size=s)
-            
-            #while the ship is invalid create another one
-            while not ship.check_validity(self.list_tiles_ships,self.list_tiles_mines):
-                ship = Ship(size=s)
-            
-            #add the newly created ship to the player's ship list
-            self.ships.add(ship)
-            self.list_tiles_ships.update(ship.occupied_tiles)
-            
-    def auto_place_mines(self,nb=8):
-        """Randomly places all the mines
-        
-        Args:
-            nb (int, optional): number of mines. Defaults 8.
-        """
-        for x in range(nb):
-            mine = Mine()
-            while not mine.check_validity(self.list_tiles_mines,self.list_tiles_ships):
-                mine = Mine()
                 
-            self.mines.add(mine)
-            self.list_tiles_mines.add(mine.index)      
+        if r_placement:
+            self.board.place_randomly()
+    
+    def is_ready(self):
+        return self.board.ready
     
     def add_hint(self,idx,nb_s,nb_m):
         self.hint_list[idx]=(nb_s,nb_m)
     
     def add_move(self,idx,value):
-        """Update the list of moves made by player 
+        """
+        Update the list of moves made by player 
         
         Args:
             idx (inx): index of the move
             value (char): type of the move
         """
-        self.moves_made[idx]=value
-        self.moves_made_indexes.add(idx)
+        self.board.moves_made[idx]=value
+        
+    def add_opponent_move(self,idx,value):
+        """
+        Update the list of moves made by the opponent 
+        
+        Args:
+            idx (inx): index of the move
+            value (char): type of the move
+        """
+        self.board.shots_received[idx]=value
     
     def get_hp_color(self):
         """Returns player's hp and the color corresponding to this value :
@@ -146,6 +79,46 @@ class Player():
         """
         self.hp=max(0, self.hp-1)
         
+    def getting_shot(self,x,y):
+        """
+        This method return the result of the opponent shot
+        
+        Args:
+            x (int): horizontal coord
+            y (int): vertical coord
+
+        Returns:
+            Move, list(int): type of the move and idexes of the ship if it is sunk
+        """
+        idx = get_index(x,y)
+        
+        shot = Move.MISS
+        sunk_idx = []
+        
+        if idx in self.board.list_tiles_mines:
+            return Move.EXPLOSION, sunk_idx
+        
+        for ship in self.board.ships:
+            if idx in ship.occupied_tiles:
+                ship.getting_shot(idx)
+                shot = Move.HIT
+                
+                #check if the ship is sunk
+                if ship.sunk:
+                    for i in ship.occupied_tiles:
+                        sunk_idx.append(i)
+                    self.boom()
+                    shot = Move.SUNK
+                break
+        if shot is Move.SUNK:
+            for i in sunk_idx:
+                self.add_opponent_move(i,Move.SUNK)
+        else:
+            self.add_opponent_move(idx, shot)
+            
+        return shot, sunk_idx
+        
+        
     def make_move(self,x,y,opponent):
         """This function performs the player's move
 
@@ -156,32 +129,23 @@ class Player():
         Returns:
             bool:   return False if a move has already been made at this coords and True otherwise
         """
-        missed=True
-        idx = 10*y+x
+        idx = get_index(x,y)
         
-        if self.moves_made[idx] is not Move.UNKNOWN:
+        if self.board.moves_made[idx] is not Move.UNKNOWN:
             return
         
-        if idx in opponent.list_tiles_mines:
+        # check what's the result of the shot
+        shot, sunk_idx = opponent.getting_shot(x,y)
+        
+        # add the shot to the moves made by the player
+        if shot is Move.SUNK:
+            for i in sunk_idx:
+                self.add_move(i,Move.SUNK)
+        elif shot is Move.EXPLOSION:
             self.boom()
-            self.add_move(idx, Move.EXPLOSION)
-            missed=False
-        
-        for ship in opponent.ships:
-            if idx in ship.occupied_tiles:
-                ship.getting_shot(idx)
-                self.add_move(idx, Move.HIT)
-                
-                #check if the ship is sunk
-                if ship.sunk:
-                    for i in ship.occupied_tiles:
-                        self.add_move(i, Move.SUNK)
-                    opponent.boom()
-                missed=False
-                break
-        
-        if missed:
-            self.add_move(idx, Move.MISS)
+            self.add_move(idx, shot)
+        else:
+            self.add_move(idx, shot)
             
         self.has_played=True
     
