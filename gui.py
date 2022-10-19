@@ -86,7 +86,7 @@ def draw_moves_made(player:Player,game:Game, x_offset=0,y_offset=INFO_MARGIN_HEI
     for i in range(NB_TILE**2):
                
         #get the move which was made on index i
-        mv = player.moves_made[i]
+        mv = player.board.moves_made[i]
         
         #if a move was made
         if mv is not Move.UNKNOWN:
@@ -136,7 +136,7 @@ def draw_ships(player:Player, x_offset=0, y_offset=INFO_MARGIN_HEIGHT, sunk_ship
     """
     
     #loop through player's ships
-    for ship in player.ships:
+    for ship in player.board.ships:
         
         #skip ships that are not sunk if option is True
         if sunk_ship and not ship.sunk:
@@ -173,7 +173,7 @@ def draw_mines(player: Player, x_offset=0, y_offset=INFO_MARGIN_HEIGHT):
     """
     
     #loop through all player's mines
-    for mine in player.mines:
+    for mine in player.board.mines:
         
         #compute next mine pixel coords
         x = mine.x*TILE_SIZE+TILE_SIZE/2
@@ -216,8 +216,7 @@ def draw_search_grid(game:Game):
     #display grid
     draw_grid()
     #display opponent sunk ships
-    #draw_ships(game.current_opponent,sunk_ship=True)
-    
+        
     #display the moves made by the current player
     draw_moves_made(game.current_player,game)
 
@@ -292,7 +291,7 @@ def main_loop(game:Game, AI=0):
                         game.play(x,y)
                 
                     if pygame.mouse.get_pressed()[2]:
-                        game.place_flag(x,y)
+                        game.current_player.board.place_flag(x,y)
            
         if type(game.current_player)==PlayerAI and not game.over and not game.pause:
             game.play()   
@@ -368,15 +367,15 @@ def placement_menu(game:Game):
                     x,y,validity=get_position(location[0], location[1])
                     
                     #check if coords are valid and correspond to a specific tile
-                    if validity and not curr.ready:
+                    if validity and not curr.is_ready():
                         
-                        if game.placement_type == "Ship" and len(curr.ships)<game.nb_ships:
+                        if game.placement_type == "Ship" and not curr.board.ships_ready():
                         
-                            s=curr.ships_sizes[len(curr.ships)]
-                            curr.place_ship(s,(x,y),orient)
+                            s=curr.ships_sizes[len(curr.board.ships)]
+                            curr.board.place_ship(s,(x,y),orient)
                             
-                        elif game.placement_type == "Mine" and len(curr.mines)<game.nb_mines:
-                            curr.place_mine((x,y))
+                        elif game.placement_type == "Mine" and not curr.board.mines_ready():
+                            curr.board.place_mine((x,y))
                                     
         
         #fill screen background
@@ -389,17 +388,17 @@ def placement_menu(game:Game):
         location = pygame.mouse.get_pos()
         x,y,validity=get_position(location[0], location[1])
         
-        if validity and not curr.ready:
+        if validity and not curr.is_ready():
             
-            if game.placement_type == "Ship" and len(curr.ships)<game.nb_ships:
-                s=curr.ships_sizes[len(curr.ships)]
-                if Ship(s,(x,y),orient).check_validity(curr.list_tiles_ships,curr.list_tiles_mines):
+            if game.placement_type == "Ship" and not curr.board.ships_ready():
+                s=curr.ships_sizes[len(curr.board.ships)]
+                if Ship(s,(x,y),orient).check_validity(curr.board.list_tiles_ships,curr.board.list_tiles_mines):
                     
                     show_single_ship(s,(x,y),orient)
                     
             elif game.placement_type == "Mine" \
-                and len(curr.mines)<game.nb_mines \
-                and Mine((x,y)).check_validity(curr.list_tiles_mines,curr.list_tiles_ships):
+                and not curr.board.mines_ready() \
+                and Mine((x,y)).check_validity(curr.board.list_tiles_mines,curr.board.list_tiles_ships):
                     
                 show_single_mine((x,y))
         
@@ -408,9 +407,9 @@ def placement_menu(game:Game):
         #display current player name
         draw_text(curr.name, 20, 5,size=70,color=GREEN)
         if game.placement_type=="Ship":
-            draw_text("{:<2} Left".format(game.nb_ships-len(curr.ships)), 235, 800,size=70,color=BLUE)
+            draw_text("{:<2} Left".format(game.nb_ships-len(curr.board.ships)), 235, 800,size=70,color=BLUE)
         else:
-            draw_text("{:<2} Left".format(game.nb_mines-len(curr.mines)), 235, 800,size=70,color=BLUE)
+            draw_text("{:<2} Left".format(game.nb_mines-len(curr.board.mines)), 235, 800,size=70,color=BLUE)
         
         #show buttons
         buttons_draw(buttons)
@@ -419,12 +418,12 @@ def placement_menu(game:Game):
         pygame.display.update()  
         mainClock.tick(FPS)
         
-        if curr.ready and game.current_opponent.ready:
+        if curr.is_ready() and game.current_opponent.is_ready():
             game.change_player()
             time.sleep(2)
             running=False
             
-        elif curr.ready:
+        elif curr.is_ready():
             game.change_player()
         
 

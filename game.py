@@ -194,9 +194,9 @@ class Game():
         nb_m = 0
         nb_s = 0
         for n in neib:
-            if n in self.current_opponent.list_tiles_mines:
+            if n in self.current_opponent.board.list_tiles_mines:
                 nb_m+=1
-            elif n in self.current_opponent.list_tiles_ships:
+            elif n in self.current_opponent.board.list_tiles_ships:
                 nb_s+=1
                     
         return nb_m, nb_s
@@ -227,7 +227,7 @@ class Game():
             if not self.current_player.is_alive() or not self.current_opponent.is_alive():
                 self.over = True
                 self.winner = self.current_player if not self.current_opponent.is_alive() else self.current_opponent
-            
+    
     def next_round(self):
         """
         Launch the next round
@@ -236,21 +236,6 @@ class Game():
         self.change_player()
         self.rounds+=1
         self.pause = False
-        
-    def place_flag(self,x,y):
-        """
-        Place a flag on a specific tile.
-
-        Args:
-            x (int): horizontal coord
-            y (int): vertical coord
-        """
-        idx = get_index(x,y)
-        curr = self.current_player
-        if curr.moves_made[idx] is Move.UNKNOWN:
-            curr.moves_made[idx]=Move.FLAG
-        elif curr.moves_made[idx] is Move.FLAG:
-            curr.moves_made[idx]=Move.UNKNOWN
         
         
         
