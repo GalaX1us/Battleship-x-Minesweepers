@@ -53,6 +53,7 @@ If you want to make some **performance tests**, head into the **test_AI_perf.py*
 
 # Ways to improve
 
+- Add a Client/Server architecture to be able to play in multiplayer
 - Improve AI by enabling it to detect and avoid mines through an algorithm using **inferences**(the same algo used in the Minesweaper game)
 - Add images instead of colored shapes
 
