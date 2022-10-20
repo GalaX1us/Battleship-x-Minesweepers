@@ -311,6 +311,8 @@ def main_loop(game:Game, AI=0):
             
         if game.over:
             #display a game over message
+            if game.current_player.hp==0:
+                game.change_player()
             draw_text(f"{game.current_player.name} Won !", (1/4)*WIDTH-35, 0,size=80, color=GREEN)
         else:       
             #display current playe name and health points

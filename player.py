@@ -96,6 +96,7 @@ class Player():
         sunk_idx = []
         
         if idx in self.board.list_tiles_mines:
+            self.add_opponent_move(idx,Move.EXPLOSION)
             return Move.EXPLOSION, sunk_idx
         
         for ship in self.board.ships:

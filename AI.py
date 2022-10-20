@@ -56,11 +56,11 @@ class PlayerAI(Player):
                         
                         if y - use_size >= 0:
                             endpoints.append(((y - use_size, x), (y, x)))
-                        if y + use_size <= 9:
+                        if y + use_size < NB_TILE:
                             endpoints.append(((y, x), (y + use_size, x)))
                         if x - use_size >= 0:
                             endpoints.append(((y, x - use_size), (y, x)))
-                        if x + use_size <= 9:
+                        if x + use_size < NB_TILE:
                             endpoints.append(((y, x), (y, x + use_size)))
 
                         for (start_y, start_x), (end_y, end_x) in endpoints:
