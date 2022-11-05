@@ -37,7 +37,7 @@ In addition to the basic rules and functionalities of the game I implemented som
 
 **AI explanation**
 
-At the start of every turn, it works out all possible locations that every remaining ship could fit in. In addition to that, the neighbors of the boxes containing a ship touched but not cast are highly valued. These different combinations are all added up, and every tile on the board is thus assigned a probability that it includes a ship part, based on the tiles that are already uncovered and the ones that are known to be clear.
+At the start of every turn, it works out all possible locations that every remaining ship could fit in. In addition to that, the neighbors of the boxes containing a ship touched but not cast are highly valued. These different combinations are all added up, and every tile on the board is thus assigned a probability that it includes a ship part, based on the tiles that are already uncovered and the ones that are known to be clear. Finally, we add to this all the information collected thanks to the clues found at each shot and we take the tile with the highest probability of having a ship on it
 
 # Requirements
 As it is said in the **requirements.txt** file, **pygame** and **numpy** are mandatory to run the program.
