@@ -49,7 +49,7 @@ To install a new package juste run ```pip install <package>```
 
 To launch the game just run the **gui.py** file with ```python gui.py```
 
-If you want to make some **performance tests**, head into the **test_AI_perf.py** file, **teak** the test settings and run ```python test_AI_perf.py```
+If you want to make some **performance tests**, head into the **test_AI_perf.py** file, **tweak** the test settings and run ```python test_AI_perf.py```
 
 # Ways to improve
 
